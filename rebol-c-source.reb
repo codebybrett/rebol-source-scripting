@@ -27,6 +27,7 @@ rebol-c-source: context [
 
 		segment: [
 			function-section
+			| line-comment
 			| other-section
 		]
 
@@ -105,7 +106,18 @@ rebol-c-source: context [
 
 			set/any 'result while [text: function/find position] [
 
+				if same? text position [
+					do make error! reform [
+						{Failed to parse function beyond position} index? position
+					]
+				]
+
+				position: none
 				parse/all/case text [grammar/function-section position:]
+
+				if not position [
+					do make error! reform [{Could not determine extent of function-section at position} index? text]
+				]
 
 				set [meta notes] function/intro text
 
