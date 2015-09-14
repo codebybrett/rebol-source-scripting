@@ -20,18 +20,22 @@ script-needs [
 requirements %rebol-c-source.reb [
 
 	[{Parse source text.}
+
 		rebol-c-source/valid? text: read/string %source/n-system.c
 	]
 
 	[{Find function.}
+
 		found? position: rebol-c-source/function/find text
 	]
 
 	[{Load function.}
+
 		block? intro: rebol-c-source/function/intro position
 	]
 
 	[{Halt is first function.}
+
 		'halt = to word! intro/1/1
 	]
 ]
