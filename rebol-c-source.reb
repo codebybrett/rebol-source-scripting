@@ -98,7 +98,7 @@ rebol-c-source: context [
 			'record [word!] {Word set to an object for each function.}
 			text [string!] {C source text.}
 			body [block!] {Block to evaluate each time.}
-			/local position intro spec result
+			/local position intro spec result meta notes
 		] [
 
 			position: text
@@ -107,15 +107,11 @@ rebol-c-source: context [
 
 				parse/all/case text [grammar/function-section position:]
 
-				intro: function/intro text
-
-				if not intro [
-					do make error! {Expected loadable function introduction comment.}
-				]
+				set [meta notes] function/intro text
 
 				spec: compose/only [
-					meta: (intro/1)
-					notes: (intro/2)
+					meta: (meta)
+					notes: (notes)
 				]
 
 				set record make object! spec
