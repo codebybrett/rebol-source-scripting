@@ -432,11 +432,18 @@ source-tool: context [
 
 		id-to-word: func [{Translate C identifier to Rebol word.} identifier] [
 
-			id: copy identifier
-			replace/all id #"_" #"-"
-			if #"q" = last id [change back tail id #"?"]
+			id: select [
+				{_add_add} ++
+			] identifier
 
-			to word! id
+			if not id [
+				id: copy identifier
+				replace/all id #"_" #"-"
+				if #"q" = last id [change back tail id #"?"]
+				id: to word! id
+			]
+
+			id
 		]
 
 		rebnatives: funct [] [
