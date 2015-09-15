@@ -27,31 +27,49 @@ REBOL [
 ; -----------------------------------------------------------------------------
 
 
+;
+; TODO:
+;
+;	* Refresh file from url other than reb. Need a manifest?
+;
+
+
 env: context [
 
 	master: https://raw.githubusercontent.com/codebybrett/reb/master/
 
-	cache: what-dir
+	base: either find [url!] type?/word system/script/args [
+		system/script/args
+	][
+		what-dir
+	]
 
-	log: none
+	logfn: func [message] [print mold new-line/all compose/only message false]
+	log: none ; Set to logfn for logging.
 
-	log [env (compose [cache (cache) master (master)])]
+	log [env (compose [base (base) master (master)])]
 
 	scripts: context [
 
 		used: make block! []
 
 		refresh: funct [
-			{Refresh each script in cache directory.}
+			{Attempt to refresh each script in base directory from master.}
 		] [
 
-			files: read cache
+			files: read base
 			remove-each file files [not parse/all file [thru %.reb]]
 
 			foreach file files [
-				log [refresh (file)]
-				write cache/:file read master/:file
+				either text: attempt [read master/:file][
+					log [refresh true (file)]
+					write base/:file text
+				][
+					log [refresh false (file)]
+				]
 			]
+			clear used
+			exit
 		]
 	]
 
@@ -68,13 +86,31 @@ env: context [
 		view: found? find form system/product {view}
 	]
 
-	run: funct [
-		{Run a script.}
-		file [file! url!]
-		/local path name
-	] [
+	retrieve: funct [
+		{Retrieve a script.}
+		pattern [file! url!]
+	][
 
-		set [path name] split-path file
+		path: name: none
+		set [path name] split-path pattern
+
+		failed: make block! []
+
+		read-script: func [fullpath][
+			if not find failed fullpath [
+				script: context compose [
+					id: (name)
+					file: (fullpath)
+					text: attempt [
+						append failed fullpath
+						log [read (fullpath)]
+						read fullpath
+					]
+					time: now/precise
+				]
+			]
+			script/text
+		]
 
 		either any [url? path path = %./] [
 
@@ -82,30 +118,50 @@ env: context [
 
 			if not find scripts/used name [
 
-				required-file: case [
-					exists? name [name]
-					exists? cache/:name [cache/:name]
-					true [master/:name]
+				any [
+					read-script name
+					read-script base/:name
+					if url? pattern [read-script pattern]
+					read-script master/:name
 				]
 			]
 		] [
 
 			; Specific file - run each time.
 
-			required-file: file
+			get-script file
 		]
 
-		if required-file [
+		script
+	]
 
-			file: clean-path required-file
-			log [run (file)]
-			do file
+	run: funct [
+		{Run a script.}
+		search-file [file! url!]
+	] [
+
+		script: retrieve search-file
+
+		either script/text [
+
+			file: clean-path script/file
+			log [run true (search-file)]
+
+			do script/text
 			def: compose [
-				file (file)
+				file (script/file)
+				;; search (search-file)
+				;; time (script/time)
 			]
-			insert position: tail scripts/used reduce [name def]
+			new-line/all/skip def true 2
+			insert position: tail scripts/used reduce [script/id def]
 			new-line position true
+		][
+
+			log [run false (script/file)]
 		]
+
+		file
 	]
 
 ]
@@ -125,4 +181,4 @@ script-needs: funct [
 	] [make error! rejoin [{Could not parse script-needs near: } copy/part pos 40]]
 ]
 
-env/cache
+env/base
