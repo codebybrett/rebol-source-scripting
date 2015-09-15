@@ -26,12 +26,12 @@ requirements %rebol-c-source.reb [
 
 	[{Find function.}
 
-		found? position: rebol-c-source/function/find text
+		found? position: rebol-c-source/parser/find-function text
 	]
 
 	[{Load function.}
 
-		block? intro: rebol-c-source/function/intro position
+		block? intro: rebol-c-source/parser/function-intro position
 	]
 
 	[{Halt is first function.}
