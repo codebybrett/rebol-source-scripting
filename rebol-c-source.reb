@@ -17,9 +17,16 @@ script-needs [
 	%line-encoded-blocks.reb
 	%load-until-blank.reb
 	%parse-kit.reb
+	%read-below.reb
 ]
 
 rebol-c-source: context [
+
+	src-folder: none
+	; Path to src/
+
+	logfn: func [message] [print mold new-line/all compose/only message false]
+	log: none
 
 	grammar: context bind [
 
@@ -74,9 +81,9 @@ rebol-c-source: context [
 		parse/all/case text grammar/rule
 	]
 
-	function: context [
+	parser: context [
 
-		find: funct [{Finds function in text.} text] [
+		find-function: funct [{Finds function in text.} text] [
 
 			parse/all/case text [
 				grammar/to-function
@@ -94,7 +101,7 @@ rebol-c-source: context [
 		; RETURN in it will return from the *caller*.  It will just wind up returning
 		; from *this loop wrapper* (in older Rebols) when the call is finished!
 		;
-		foreach-NO-RETURN: func [
+		foreach-func-NO-RETURN: func [
 			{Iterate function sections by creating an object for each row.}
 			'record [word!] {Word set to an object for each function.}
 			text [string!] {C source text.}
@@ -104,7 +111,7 @@ rebol-c-source: context [
 
 			position: text
 
-			set/any 'result while [text: function/find position] [
+			set/any 'result while [text: find-function position] [
 
 				if same? text position [
 					do make error! reform [
@@ -119,7 +126,7 @@ rebol-c-source: context [
 					do make error! reform [{Could not determine extent of function-section at position} index? text]
 				]
 
-				set [meta notes] function/intro text
+				set [meta notes] function-intro text
 
 				spec: compose/only [
 					meta: (meta)
@@ -134,7 +141,7 @@ rebol-c-source: context [
 			get/any 'result
 		]
 
-		intro: funct [{Load function introduction comment.} string] [
+		function-intro: funct [{Load function introduction comment.} string] [
 
 			if none? string [return none]
 
@@ -154,5 +161,33 @@ rebol-c-source: context [
 				result
 			]
 		]
+	]
+
+	list: context [
+
+		c-file: funct [{Retrieves a list of .c scripts (relative paths).}] [
+
+			files: read-below src-folder
+			remove-each file files [not parse/all file [thru %.c]]
+
+			files
+		]
+	]
+
+	natives: funct [{Loads native specs from C source files.}] [
+
+		result: make block! 400
+
+		foreach file list/c-file [
+
+			parser/foreach-func-NO-RETURN x read/string src-folder/:file [
+				if attempt [x/meta/2 = 'native] [
+					insert position: tail result x/meta
+					new-line position true
+				]
+			]
+		]
+
+		result
 	]
 ]
