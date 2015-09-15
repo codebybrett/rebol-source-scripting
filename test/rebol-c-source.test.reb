@@ -29,13 +29,13 @@ requirements %rebol-c-source.reb [
 		found? position: rebol-c-source/parser/find-function text
 	]
 
-	[{Load function.}
+	[{Load function intro.}
 
-		block? intro: rebol-c-source/parser/function-intro position
+		block? intro: rebol-c-source/parser/parse-intro/next position 'next-position
 	]
 
-	[{Halt is first function.}
+	[{Load function declaration.}
 
-		'halt = to word! intro/1/1
+		[["REBNATIVE"] ["halt"]] = rebol-c-source/parser/parse-decl next-position
 	]
 ]

@@ -54,10 +54,14 @@ rebol-c-source: context [
 		other-section: [some [not-intro preprocessing-token]]
 
 		function.decl: [
-			[identifier any [wsp identifier] opt [wsp #"*" identifier]]
-			#"(" thru #")" [eol | opt wsp eol]
+			function.words function.args [eol | opt wsp eol]
 			is-lbrace
 		]
+
+		function.words: [function.id any [wsp function.id] opt [wsp function.star function.id]]
+		function.args: [#"(" any [function.id | wsp | not-rparen punctuator] #")"]
+		function.id: copy identifier
+		function.star: #"*"
 
 		function.body: [braced]
 
@@ -126,11 +130,14 @@ rebol-c-source: context [
 					do make error! reform [{Could not determine extent of function-section at position} index? text]
 				]
 
-				set [meta notes] function-intro text
+				set [meta notes] parse-intro/next text 'position
+
+				decl: parse-decl position
 
 				spec: compose/only [
 					meta: (meta)
 					notes: (notes)
+					decl: (decl)
 				]
 
 				set record make object! spec
@@ -141,17 +148,46 @@ rebol-c-source: context [
 			get/any 'result
 		]
 
-		function-intro: funct [{Load function introduction comment.} string] [
+		parse-decl: funct [
+			{Load function declaration.}
+			string [string!]
+			/next {Set a variable with next position.}
+			var [word!] "Variable updated with new block position"
+		] [
+
+			terms: bind [function.words function.args] grammar
+			terminals: bind [function.id] grammar
+			tree: get-parse/terminal [parse/all/case string [grammar/function.decl position:]] terms terminals
+
+			if next [set var position]
+
+			using-tree-content tree
+
+			words: map-each node at tree/4 4 [assert [node/1 = 'function.id] node/3/content]
+			args: map-each node at tree/5 4 [assert [node/1 = 'function.id] node/3/content]
+
+			reduce [words args]
+		]
+
+		parse-intro: funct [
+			{Load function introduction comment.}
+			string
+			/next {Set a variable with next position.}
+			var [word!] "Variable updated with new block position"
+		] [
 
 			if none? string [return none]
 
 			parse/all string [
-				copy lines some [{//} [newline | #" " thru newline]]
-				(prefix: {//})
+				some [{//} [newline | #" " thru newline]]
+				any newline
+				position: (prefix: {//})
 			]
 
-			if lines [
+			if next [set var position]
+			if position [
 
+				lines: copy/part string position
 				lines: decode-lines lines prefix {}
 				trim/auto lines
 				; Indent subject to manual edits, don't trust it.
@@ -183,6 +219,8 @@ rebol-c-source: context [
 
 		foreach file list/c-file [
 
+			log [parse-natives (file)]
+
 			parser/foreach-func-NO-RETURN x read/string src-folder/:file [
 				if attempt [x/meta/2 = 'native] [
 					either only [
@@ -190,7 +228,7 @@ rebol-c-source: context [
 							file (file)
 							spec (x/meta)
 						]
-					][
+					] [
 						insert position: tail result x/meta
 					]
 					new-line position true
