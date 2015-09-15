@@ -1,1 +1,1 @@
-# Scripts to aid development.
+Scripts to aid development.
