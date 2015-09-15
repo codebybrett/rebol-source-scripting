@@ -174,7 +174,10 @@ rebol-c-source: context [
 		]
 	]
 
-	natives: funct [{Loads native specs from C source files.}] [
+	natives: funct [
+		{Loads native specs from C source files.}
+		/only {Return natives as individual blocks.}
+	] [
 
 		result: make block! 400
 
@@ -182,7 +185,14 @@ rebol-c-source: context [
 
 			parser/foreach-func-NO-RETURN x read/string src-folder/:file [
 				if attempt [x/meta/2 = 'native] [
-					insert position: tail result x/meta
+					either only [
+						insert/only position: tail result compose/only [
+							file (file)
+							spec (x/meta)
+						]
+					][
+						insert position: tail result x/meta
+					]
 					new-line position true
 				]
 			]
