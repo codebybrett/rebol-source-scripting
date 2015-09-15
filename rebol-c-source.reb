@@ -18,6 +18,7 @@ script-needs [
 	%load-until-blank.reb
 	%parse-kit.reb
 	%read-below.reb
+	%trees.reb
 ]
 
 rebol-c-source: context [
