@@ -108,7 +108,7 @@ rebol-c-source: context [
 		;
 		foreach-func-NO-RETURN: func [
 			{Iterate function sections by creating an object for each row.}
-			'record [word!] {Word set to an object for each function.}
+			'record [word!] {Word set to function metadata for each function.}
 			text [string!] {C source text.}
 			body [block!] {Block to evaluate each time.}
 			/local position intro spec result meta notes
@@ -124,17 +124,14 @@ rebol-c-source: context [
 					]
 				]
 
-				position: none
-				parse/all/case text [grammar/function-section position:]
-
-				if not position [
-					do make error! reform [{Could not determine extent of function-section at position} index? text]
-				]
-
-				spec: parse-function-section text
+				spec: parse-function-section/next text 'position
 
 				if none? spec/decl [
 					do make error! reform [{Could not parse function declaration at position} (index? text) {spec} (mold spec)]
+				]
+
+				if not position [
+					do make error! reform [{Could not determine extent of function-section at position} index? text]
 				]
 
 				set record spec
@@ -153,16 +150,20 @@ rebol-c-source: context [
 		] [
 
 			terms: bind [function.words function.args] grammar
-			terminals: bind [function.id] grammar
-			tree: get-parse/terminal [parse/all/case string [grammar/function.decl position:]] terms terminals
+			terminals: bind [function.id function.star] grammar
+
+			tree: get-parse/terminal [
+				parse/all/case string [grammar/function.decl position:]
+			] terms terminals
+
 			if empty? at tree 4 [return none] ; Not valid declaration.
 
 			if next [set var position]
 
 			using-tree-content tree
 
-			words: map-each node at tree/4 4 [assert [node/1 = 'function.id] node/3/content]
-			args: map-each node at tree/5 4 [assert [node/1 = 'function.id] node/3/content]
+			words: map-each node at tree/4 4 [assert [find [function.id function.star] node/1] node/3/content]
+			args: map-each node at tree/5 4 [assert [find [function.id function.star] node/1] node/3/content]
 
 			reduce [words args]
 		]
@@ -170,16 +171,24 @@ rebol-c-source: context [
 		parse-function-section: funct [
 			{Load function section.}
 			text
+			/next {Set a variable with next position.}
+			var [word!] "Variable updated with new block position"
 		] [
 
 			set [meta notes] parse-intro/next text 'position
 
-			decl: parse-decl any [position text]
+			decl: parse-decl/next start: any [position text] 'position
+
+			parse/all/case position [grammar/function.body eof:]
+			if next [set var eof]
 
 			spec: compose/only [
+				proto (copy/part start position)
 				decl (decl)
 				meta (meta)
 				notes (notes)
+				position (index? text)
+				length? (subtract index? eof index? text)
 			]
 		]
 
