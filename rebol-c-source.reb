@@ -40,8 +40,7 @@ rebol-c-source: context [
 		]
 
 		function-section: [
-			intro-comment
-			any eol
+			opt intro-section
 			function.decl
 			function.body
 		]
@@ -49,6 +48,7 @@ rebol-c-source: context [
 		to-function: [any [not-function-section segment]]
 		not-function-section: parsing-unless function-section
 
+		intro-section: [intro-comment any eol]
 		intro-comment: [some [line-comment eol]]
 		not-intro: parsing-unless intro-comment
 
@@ -131,17 +131,13 @@ rebol-c-source: context [
 					do make error! reform [{Could not determine extent of function-section at position} index? text]
 				]
 
-				set [meta notes] parse-intro/next text 'position
+				spec: parse-function-section text
 
-				decl: parse-decl position
-
-				spec: compose/only [
-					meta: (meta)
-					notes: (notes)
-					decl: (decl)
+				if none? spec/decl [
+					do make error! reform [{Could not parse function declaration at position} (index? text) {spec} (mold spec)]
 				]
 
-				set record make object! spec
+				set record spec
 
 				do body
 			]
@@ -159,6 +155,7 @@ rebol-c-source: context [
 			terms: bind [function.words function.args] grammar
 			terminals: bind [function.id] grammar
 			tree: get-parse/terminal [parse/all/case string [grammar/function.decl position:]] terms terminals
+			if empty? at tree 4 [return none] ; Not valid declaration.
 
 			if next [set var position]
 
@@ -170,6 +167,22 @@ rebol-c-source: context [
 			reduce [words args]
 		]
 
+		parse-function-section: funct [
+			{Load function section.}
+			text
+		] [
+
+			set [meta notes] parse-intro/next text 'position
+
+			decl: parse-decl any [position text]
+
+			spec: compose/only [
+				decl (decl)
+				meta (meta)
+				notes (notes)
+			]
+		]
+
 		parse-intro: funct [
 			{Load function introduction comment.}
 			string
@@ -179,17 +192,14 @@ rebol-c-source: context [
 
 			if none? string [return none]
 
-			parse/all string [
-				some [{//} [newline | #" " thru newline]]
-				any newline
-				position: (prefix: {//})
-			]
+			parse/all string [grammar/intro-section position: (prefix: {//})]
 
 			if next [set var position]
 			if position [
 
 				lines: copy/part string position
-				lines: decode-lines lines prefix {}
+				lines: attempt [decode-lines lines prefix {}]
+				if not lines [return none]
 				trim/auto lines
 				; Indent subject to manual edits, don't trust it.
 
@@ -211,32 +221,38 @@ rebol-c-source: context [
 		]
 	]
 
-	natives: funct [
-		{Loads native specs from C source files.}
-		/only {Return natives as individual blocks.}
-	] [
+	scan: context [
 
-		result: make block! 400
+		functions: funct [
+			{Loads function specs from C source files.}
+		] [
 
-		foreach file list/c-file [
+			result: make block! 400
 
-			log [parse-natives (file)]
+			foreach file list/c-file [
 
-			parser/foreach-func-NO-RETURN x read/string src-folder/:file [
-				if attempt [x/meta/2 = 'native] [
-					either only [
-						insert/only position: tail result compose/only [
-							file (file)
-							spec (x/meta)
-						]
-					] [
-						insert position: tail result x/meta
-					]
+				log [parse-natives (file)]
+
+				parser/foreach-func-NO-RETURN spec read/string src-folder/:file [
+					insert spec compose [file (file)]
+					new-line/all/skip spec true 2
+					insert/only position: tail result spec
 					new-line position true
 				]
 			]
+
+			result
 		]
 
-		result
+		natives: funct [
+			{Loads native specs from C source files.}
+		] [
+
+			remove-each fn result: functions [
+				not equal? "REBNATIVE" fn/decl/1/1
+			]
+
+			result
+		]
 	]
 ]
