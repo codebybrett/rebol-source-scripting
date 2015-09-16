@@ -45,4 +45,4 @@ rebol-c-source/log: get in rebol-c-source 'logfn
 
 ; Get list of natives.
 ;
-src-natives: rebol-c-source/natives
+src-natives: rebol-c-source/scan/natives
