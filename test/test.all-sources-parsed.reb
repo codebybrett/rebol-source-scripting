@@ -1,5 +1,5 @@
 REBOL [
-	Title: "Rebol C Source - Parse All Sources Test"
+	Title: "Parse All Sources Test"
 	Version: 1.0.0
 	Rights: {
 		Copyright 2015 Brett Handley
@@ -31,7 +31,7 @@ parse-all-c-sources: funct [root][
 	]
 ]
 
-requirements %rebol-c-sources-parsed.reb [
+requirements %test.all-sources-parsed.reb [
 
 	['passed = last parse-all-c-sources target-root]
 ]
