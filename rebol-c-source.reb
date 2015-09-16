@@ -208,9 +208,9 @@ rebol-c-source: context [
 
 				lines: copy/part string position
 				lines: attempt [decode-lines lines prefix {}]
+				; The indent is subject to manual edits, don't trust it.
+
 				if not lines [return none]
-				trim/auto lines
-				; Indent subject to manual edits, don't trust it.
 
 				result: load-until-blank lines
 				if empty? result/2 [result/2: none]
