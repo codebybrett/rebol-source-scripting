@@ -12,14 +12,19 @@ REBOL [
 	Purpose: {An example of how to use the source tool.}
 ]
 
-
-; Script locations.
+; -------------------------------------------------------------------------
+;
+; REBOL-C-SOURCE EXAMPLE
 ;
 ; Normally the scripts will be run from disk and at mimimum you need:
 ;
 ; 1. The source tool script: %rebol-c-source.reb
 ; 2. The script environment script: %env.reb
 ;    - which is normally located within a subfolder %reb/
+;
+; -------------------------------------------------------------------------
+
+; Script locations.
 ;
 tool-folder: https://raw.githubusercontent.com/codebybrett/rebol-source-scripting/master/
 reb: tool-folder/(%reb/)
