@@ -20,9 +20,13 @@ do http://codeconscious.com/rebol-scripts/parse-analysis-view.r
 ; Will redefines script-needs.
 
 do %../reb/env.reb
+do %config.reb
 
 view-c: funct [text][
 
 	visualise-parse text rebol-c-source/grammar [rebol-c-source/valid? text]
 ]
 
+dev-stdio: func [][
+	view-c read target-root/src/os/windows/dev-stdio.c
+]
