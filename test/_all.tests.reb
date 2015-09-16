@@ -19,7 +19,7 @@ script-needs [
 
 remove-each test tests: read %./ [
 	any [
-		find [%_all.tests.reb %config.reb %setup.reb] ?? test
+		find [%_all.tests.reb %config.reb %setup.reb] test
 		not parse/all test [thru %.reb]
 	]
 ]
