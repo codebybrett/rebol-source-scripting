@@ -1,5 +1,5 @@
 REBOL [
-	Title: "Notes Test"
+	Title: "Parser Faithfullness"
 	Version: 1.0.0
 	Rights: {
 		Copyright 2015 Brett Handley
@@ -18,11 +18,10 @@ requirements %test.notes-keep-whitespace.reb [
 
 	[{Parser must return notes faithfully.}
 
-		[X "  Y"] = rebol-c-source/parser/parse-intro {//
-//  X
+		"  Y" = second rebol-c-source/parser/parse-intro {//
+//  X: C
 //
 //  Y
 }
 	]
-
 ]
