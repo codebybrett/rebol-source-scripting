@@ -188,7 +188,7 @@ rebol-c-source: context [
 				meta (meta)
 				notes (notes)
 				position (index? text)
-				length? (subtract index? eof index? text)
+				length (subtract index? eof index? text)
 			]
 		]
 
