@@ -13,7 +13,7 @@ and separate free format notes.
 
 ### Notes ###
 
-This grew out of an idea and changed a bit as ideas changed. It was written
-before I realised I could write a C source lexer which would have simplified
-the code considerably.
+This grew out of an idea from @hostilefork and changed a bit as ideas changed.
+It was written before I realised I could write a C source lexer (c-lexicals.reb)
+which would have simplified the code considerably.
 
