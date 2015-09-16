@@ -12,21 +12,15 @@ REBOL [
 ]
 
 
-script-needs [
-	%../rebol-c-source.reb
-]
-
 do http://codeconscious.com/rebol-scripts/parse-analysis-view.r
+if not value 'tokenise-parse [do http://codeconscious.com/rebol-scripts/parse-analysis.r]
 ; Will redefines script-needs.
 
-do %../reb/env.reb
-do %config.reb
+do %../test/setup.reb
 
 view-c: funct [text][
 
 	visualise-parse text rebol-c-source/grammar [rebol-c-source/valid? text]
 ]
 
-dev-stdio: func [][
-	view-c read target-root/src/os/windows/dev-stdio.c
-]
+dev-stdio: target-root/src/os/windows/dev-stdio.c

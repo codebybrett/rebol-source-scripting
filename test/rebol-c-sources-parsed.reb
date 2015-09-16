@@ -11,10 +11,10 @@ REBOL [
 	Author: "Brett Handley"
 ]
 
+do %setup.reb
+
 script-needs [
-	%requirements.reb
 	%read-below.reb
-	%../rebol-c-source.reb
 ]
 
 parse-all-c-sources: funct [root][
@@ -33,5 +33,5 @@ parse-all-c-sources: funct [root][
 
 requirements %rebol-c-sources-parsed.reb [
 
-	['passed = last parse-all-c-sources %../../temporary.201508-source-format-change/]
+	['passed = last parse-all-c-sources target-root]
 ]

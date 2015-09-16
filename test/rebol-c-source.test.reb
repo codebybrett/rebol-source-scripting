@@ -11,11 +11,7 @@ REBOL [
 	Author: "Brett Handley"
 ]
 
-
-script-needs [
-	%requirements.reb
-	%../rebol-c-source.reb
-]
+do %setup.reb
 
 requirements %rebol-c-source.reb [
 
