@@ -16,5 +16,5 @@ do %../test/setup.reb
 
 rf: rebol-c-source/scan/functions
 
-write target-root/data/function-list.reb mold ro
+write target-root/data/function-list.reb mold rf
 
