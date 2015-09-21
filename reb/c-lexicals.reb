@@ -27,16 +27,21 @@ c.lexical: context [
 
 	grammar: [
 
-		text: [some preprocessing-token]
+		text: [some c-pp-token]
+
+		c-pp-token: [
+
+			eol | wsp | span-comment | line-comment
+
+			| preprocessing-token
+		]
 
 		;
 		; -- A.1.1 Lexical Elements
 
 		preprocessing-token: [
 
-			eol | wsp | span-comment | line-comment
-
-			| header-name
+			header-name
 			| identifier
 			| pp-number
 			| character-constant

@@ -52,7 +52,7 @@ rebol-c-source: context [
 		intro-comment: [some [line-comment eol]]
 		not-intro: parsing-unless intro-comment
 
-		other-section: [some [not-intro preprocessing-token]]
+		other-section: [some [not-intro c-pp-token]]
 
 		function.decl: [
 			function.words function.args [eol | opt wsp eol]
@@ -69,7 +69,7 @@ rebol-c-source: context [
 		braced: [
 			is-lbrace skip
 			some [
-				not-rbrace [braced | preprocessing-token]
+				not-rbrace [braced | c-pp-token]
 			]
 			#"}"
 		]
