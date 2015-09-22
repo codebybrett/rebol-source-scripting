@@ -31,9 +31,15 @@ c.lexical: context [
 
 		c-pp-token: [
 
-			eol | wsp | span-comment | line-comment
+			white-space | preprocessing-token
+		]
 
-			| preprocessing-token
+		white-space: [
+			nl
+			| eol
+			| wsp
+			| span-comment
+			| line-comment
 		]
 
 		;
@@ -112,7 +118,8 @@ c.lexical: context [
 		;
 		; -- Whitespace
 
-		eol: newline
+		nl: {\^/} ; End of physical line.
+		eol: newline ; End of logical line.
 		wsp: [some ws-char]
 		span-comment: [{/*} thru {*/}]
 		line-comment: [{//} to newline]
