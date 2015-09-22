@@ -118,7 +118,7 @@ c.lexical: context [
 		;
 		; -- Whitespace
 
-		nl: {\^/} ; End of physical line.
+		nl: {\^/} ; Line break in logical line.
 		eol: newline ; End of logical line.
 		wsp: [some ws-char]
 		span-comment: [{/*} thru {*/}]
