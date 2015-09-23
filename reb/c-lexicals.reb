@@ -47,11 +47,11 @@ c.lexical: context [
 
 		preprocessing-token: [
 
-			header-name
-			| identifier
+			identifier
 			| pp-number
 			| character-constant
 			| string-literal
+			| header-name
 			| punctuator
 			| other-pp-token
 		]
