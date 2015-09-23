@@ -80,11 +80,30 @@ c.lexical: context [
 			| {U'} some c-char #"'"
 		]
 
+		escape-sequence: [
+			simple-escape-sequence
+			| octal-escape-sequence
+			| hexadecimal-escape-sequence
+			| universal-character-name
+		]
+
+		simple-escape-sequence: [
+			{\'} | {\"} | {\?} | {\\}
+			| {\a} | {\b} | {\f} | {\n} | {\r} | {\t} | {\v}
+		]
+
+		hexadecimal-escape-sequence: [{\x} hexadecimal-digit any hexadecimal-digit]
+
+		octal-escape-sequence: [#"\" 1 3 octal digit]
+
 		;
 		; -- A.1.6 String literals
 
-		string-literal: [opt encoding-prefix #"^"" any s-char #"^""]
+		string-literal: [
+			opt encoding-prefix #"^"" any s-char #"^""
+		]
 		encoding-prefix: [{u8} | #"L" | #"u" | #"U"]
+		s-char: [s-char.cs | escape-sequence]
 
 		;
 		; -- A.1.7 Punctuators
@@ -145,7 +164,7 @@ c.lexical: context [
 		c-char: complement charset {'\^/}
 
 		; string-literal
-		s-char: complement charset {"\^/}
+		s-char.cs: complement charset {"\^/}
 
 		; punctuator
 		p-char: charset "[](){}.&*+-~!/%<>^^|?:;=,#"
