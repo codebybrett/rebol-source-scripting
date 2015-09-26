@@ -44,12 +44,13 @@ c.lexical: context [
 
 		;
 		; -- A.1.1 Lexical Elements
+		; Order is significant
 
 		preprocessing-token: [
 
-			identifier
-			| pp-number
+			pp-number
 			| character-constant
+			| identifier
 			| string-literal
 			| header-name
 			| punctuator
@@ -94,7 +95,7 @@ c.lexical: context [
 
 		hexadecimal-escape-sequence: [{\x} hexadecimal-digit any hexadecimal-digit]
 
-		octal-escape-sequence: [#"\" 1 3 octal digit]
+		octal-escape-sequence: [#"\" 1 3 octal-digit]
 
 		;
 		; -- A.1.6 String literals
@@ -154,6 +155,7 @@ c.lexical: context [
 		; Identifier
 		nondigit: charset [#"_" #"a" - #"z" #"A" - #"Z"]
 		digit: charset {0123456789}
+		octal-digit: charset {01234567}
 		id.char: union nondigit digit
 		hexadecimal-digit: charset [#"0" - #"9" #"a" - #"f" #"A" - #"F"]
 
