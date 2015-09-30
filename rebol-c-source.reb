@@ -29,6 +29,12 @@ rebol-c-source: context [
 	logfn: func [message] [print mold new-line/all compose/only message false]
 	log: none
 
+	proto-exclusions: [
+		{REBNATIVE(in_context)}
+		{REBNATIVE(native)}
+		{REBNATIVE(action)}
+	] ; Is there a better way to handle this?
+
 	grammar: context bind [
 
 		rule: [some segment]
@@ -126,8 +132,8 @@ rebol-c-source: context [
 
 				spec: parse-function-section/next text 'position
 
-				if none? spec/decl [
-					do make error! reform [{Could not parse function declaration at position} (index? text) {spec} (mold spec)]
+				if spec/error [
+					do make error! reform [spec/error {At position} (index? text) (mold spec/proto)]
 				]
 
 				if not position [
@@ -179,16 +185,34 @@ rebol-c-source: context [
 
 			decl: parse-decl/next start: any [position text] 'position
 
+			proto: trim/tail copy/part start position
+
 			parse/all/case position [grammar/function.body eof:]
 			if next [set var eof]
 
+			error: case [
+
+				none? decl {Could not parse function declaration.}
+
+				if all [
+					equal? {REBNATIVE} first decl/1
+					not find proto-exclusions proto
+				] [
+					not all [
+						attempt ['native = meta/2]
+						attempt [equal? to word! meta/1 c-id-to-word last decl/2]
+					]
+				] {Invalid metadata for function.}
+			]
+
 			spec: compose/only [
-				proto (copy/part start position)
+				proto (proto)
 				decl (decl)
 				meta (meta)
 				notes (notes)
 				position (index? text)
 				length (subtract index? eof index? text)
+				error (error)
 			]
 		]
 
