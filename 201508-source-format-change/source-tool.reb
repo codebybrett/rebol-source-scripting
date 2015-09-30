@@ -34,8 +34,8 @@ REBOL [
 ;
 ; NOTE:
 ;
-;	Some c identifiers are different to the words they define.
-;	- See ID-TO-WORD for the mapping.
+;	Some C identifiers are different to the words they define.
+;	- See C-ID-TO-WORD for the mapping.
 ;
 ;	Supports tools (e.g. coverity that use comments
 ;	to annotate declarations by maintaing a comment intact
@@ -49,11 +49,11 @@ REBOL [
 script-needs [
 	%apropos.reb
 	%mold-contents.reb
-	%load-until-blank.reb
 	%line-encoded-blocks.reb
 	%parse-kit.reb
 	%trees.reb
 	%read-below.reb
+	%../rebol-source-conventions.reb
 ]
 
 source-tool: context [
@@ -211,7 +211,7 @@ source-tool: context [
 
 				if lines [
 					lines: decode-lines lines prefix {  }
-					load-until-blank lines
+					decode-function-meta lines
 				]
 			]
 		]
@@ -260,19 +260,38 @@ source-tool: context [
 				debug [normalising (def)]
 
 				name: def/name
+				r.id: none
 
 				either def/style = 'new-style-decl [
 
 					set [meta notes] comment/load def/intro-notes
+					if none? meta [
+						log [warning meta-not-decoded (def)]
+					]
 				][
 
 					either native: rebnative? def [
 
-						r.id: id-to-word name: def/param
-						r-info: attempt [r-source/native/cache/:r.id]
+						r.id: c-id-to-word name: def/param
+						r-info: attempt [copy r-source/native/cache/:r.id]
 
-						meta: compose/only [
-							(to set-word! r.id) native (r-info)
+						; Reformat native spec.
+						if r-info [
+							parse r-info [
+								string! [
+									end
+									| position: (
+										insert position '-
+										new-line position true
+										new-line next position true
+									)
+								]
+							]
+						]
+
+						meta: compose/deep [
+							(to set-word! r.id) native
+							(r-info)
 						]
 					][
 
@@ -440,22 +459,6 @@ source-tool: context [
 
 		]
 
-		id-to-word: func [{Translate C identifier to Rebol word.} identifier] [
-
-			id: select [
-				{_add_add} ++
-			] identifier
-
-			if not id [
-				id: copy identifier
-				replace/all id #"_" #"-"
-				if #"q" = last id [change back tail id #"?"]
-				id: to word! id
-			]
-
-			id
-		]
-
 		rebnatives: funct [] [
 
 			extract rebnative-index 2
@@ -480,7 +483,7 @@ source-tool: context [
 
 					if rebnative? def [
 
-						keep id: id-to-word def/param
+						keep id: c-id-to-word def/param
 
 						keep/only compose/only [
 							c.id (def/param)

@@ -31,25 +31,23 @@
 
 
 //
-//  halt: native [
-//      "Stops evaluation and returns to the input prompt."
-//  ]
+//  halt: native 
+//  "Stops evaluation and returns to the input prompt."
 //
 REBNATIVE(halt)
 {
-	Halt();
-	DEAD_END;
+	raise Error_Is(TASK_HALT_ERROR);
 }
 
 
 //
-//  quit: native [
-//      {Stop evaluating and return control to command shell or calling script.} 
-//      /with {Yield a result (mapped to an integer if given to shell)} 
-//      value [any-type!] "See: http://en.wikipedia.org/wiki/Exit_status" 
-//      /return "(deprecated synonym for /WITH)" 
-//      return-value
-//  ]
+//  quit: native 
+//  {Stop evaluating and return control to command shell or calling script.} 
+//  - 
+//  /with {Yield a result (mapped to an integer if given to shell)} 
+//  value [any-type!] "See: http://en.wikipedia.org/wiki/Exit_status" 
+//  /return "(deprecated synonym for /WITH)" 
+//  return-value
 //  
 //  1: /with
 //  2: value
@@ -85,14 +83,14 @@ REBNATIVE(quit)
 
 
 //
-//  recycle: native [
-//      "Recycles unused memory." 
-//      /off "Disable auto-recycling" 
-//      /on "Enable auto-recycling" 
-//      /ballast "Trigger for auto-recycle (memory used)" 
-//      size [integer!] 
-//      /torture "Constant recycle (for internal debugging)"
-//  ]
+//  recycle: native 
+//  "Recycles unused memory." 
+//  - 
+//  /off "Disable auto-recycling" 
+//  /on "Enable auto-recycling" 
+//  /ballast "Trigger for auto-recycle (memory used)" 
+//  size [integer!] 
+//  /torture "Constant recycle (for internal debugging)"
 //
 REBNATIVE(recycle)
 {
@@ -126,14 +124,14 @@ REBNATIVE(recycle)
 
 
 //
-//  stats: native [
-//      {Provides status and statistics information about the interpreter.} 
-//      /show "Print formatted results to console" 
-//      /profile "Returns profiler object" 
-//      /timer "High resolution time difference from start" 
-//      /evals "Number of values evaluated by interpreter" 
-//      /dump-series pool-id [integer!] "Dump all series in pool pool-id, -1 for all pools"
-//  ]
+//  stats: native 
+//  {Provides status and statistics information about the interpreter.} 
+//  - 
+//  /show "Print formatted results to console" 
+//  /profile "Returns profiler object" 
+//  /timer "High resolution time difference from start" 
+//  /evals "Number of values evaluated by interpreter" 
+//  /dump-series pool-id [integer!] "Dump all series in pool pool-id, -1 for all pools"
 //
 REBNATIVE(stats)
 {
@@ -213,10 +211,10 @@ const char *evoke_help = "Evoke values:\n"
 ;
 
 //
-//  evoke: native [
-//      "Special guru meditations. (Not for beginners.)" 
-//      chant [word! block! integer!] "Single or block of words ('? to list)"
-//  ]
+//  evoke: native 
+//  "Special guru meditations. (Not for beginners.)" 
+//  - 
+//  chant [word! block! integer!] "Single or block of words ('? to list)"
 //
 REBNATIVE(evoke)
 {
@@ -251,8 +249,7 @@ REBNATIVE(evoke)
 				Expand_Stack(Int32s(arg, 1));
 				break;
 			case SYM_CRASH:
-				Panic_DEAD_END(RP_MISC);
-				break;
+				panic Error_0(RE_MISC);
 			default:
 				Out_Str(cb_cast(evoke_help), 1);
 			}
@@ -295,11 +292,11 @@ REBNATIVE(in_context)
 #endif
 
 //
-//  limit-usage: native [
-//      "Set a usage limit only once (used for SECURE)." 
-//      field [word!] "eval (count) or memory (bytes)" 
-//      limit [number!]
-//  ]
+//  limit-usage: native 
+//  "Set a usage limit only once (used for SECURE)." 
+//  - 
+//  field [word!] "eval (count) or memory (bytes)" 
+//  limit [any-number!]
 //
 REBNATIVE(limit_usage)
 {
@@ -318,17 +315,17 @@ REBNATIVE(limit_usage)
 
 
 //
-//  stack: native [
-//      "Returns stack backtrace or other values." 
-//      offset [integer!] "Relative backward offset" 
-//      /block "Block evaluation position" 
-//      /word "Function or object name, if known" 
-//      /func "Function value" 
-//      /args "Block of args (may be modified)" 
-//      /size "Current stack size (in value units)" 
-//      /depth "Stack depth (frames)" 
-//      /limit "Stack bounds (auto expanding)"
-//  ]
+//  stack: native 
+//  "Returns stack backtrace or other values." 
+//  - 
+//  offset [integer!] "Relative backward offset" 
+//  /block "Block evaluation position" 
+//  /word "Function or object name, if known" 
+//  /func "Function value" 
+//  /args "Block of args (may be modified)" 
+//  /size "Current stack size (in value units)" 
+//  /depth "Stack depth (frames)" 
+//  /limit "Stack bounds (auto expanding)"
 //  
 //  stack: native [
 //      {Returns stack backtrace or other values.}
@@ -383,7 +380,8 @@ REBNATIVE(stack)
 
 
 //
-//  check: native ["Temporary series debug check" val [series!]]
+//  check: native "Temporary series debug check" 
+//  - val [any-series!]
 //
 REBNATIVE(check)
 {
@@ -408,13 +406,12 @@ REBNATIVE(check)
 	}
 	return R_OUT;
 err:
-	Trap_DEAD_END(RE_BAD_SERIES);
-	DEAD_END;
+	raise Error_0(RE_BAD_SERIES);
 }
 
 
 //
-//  ds: native ["Temporary stack debug"]
+//  ds: native "Temporary stack debug"
 //
 REBNATIVE(ds)
 {
@@ -424,12 +421,12 @@ REBNATIVE(ds)
 
 
 //
-//  do-codec: native [
-//      {Evaluate a CODEC function to encode or decode media types.} 
-//      handle [handle!] "Internal link to codec" 
-//      action [word!] "Decode, encode, identify" 
-//      data [binary! image! string!]
-//  ]
+//  do-codec: native 
+//  {Evaluate a CODEC function to encode or decode media types.} 
+//  - 
+//  handle [handle!] "Internal link to codec" 
+//  action [word!] "Decode, encode, identify" 
+//  data [binary! image! string!]
 //  
 //  Calls a codec handle with specific data:
 //  
@@ -457,7 +454,7 @@ REBNATIVE(do_codec)
 	case SYM_IDENTIFY:
 		codi.action = CODI_ACT_IDENTIFY;
 	case SYM_DECODE:
-		if (!IS_BINARY(val)) Trap1_DEAD_END(RE_INVALID_ARG, val);
+		if (!IS_BINARY(val)) raise Error_1(RE_INVALID_ARG, val);
 		codi.data = VAL_BIN_DATA(D_ARG(3));
 		codi.len  = VAL_LEN(D_ARG(3));
 		break;
@@ -469,17 +466,18 @@ REBNATIVE(do_codec)
 			codi.w = VAL_IMAGE_WIDE(val);
 			codi.h = VAL_IMAGE_HIGH(val);
 			codi.alpha = Image_Has_Alpha(val, 0);
-		} else if (IS_STRING(val)) {
+		}
+		else if (IS_STRING(val)) {
 			codi.w = VAL_SERIES_WIDTH(val);
 			codi.len = VAL_LEN(val);
 			codi.extra.other = VAL_BIN_DATA(val);
 		}
 		else
-			Trap1_DEAD_END(RE_INVALID_ARG, val);
+			raise Error_1(RE_INVALID_ARG, val);
 		break;
 
 	default:
-		Trap1_DEAD_END(RE_INVALID_ARG, D_ARG(2));
+		raise Error_1(RE_INVALID_ARG, D_ARG(2));
 	}
 
 	// Nasty alias, but it must be done:
@@ -488,7 +486,7 @@ REBNATIVE(do_codec)
 
 	if (codi.error != 0) {
 		if (result == CODI_CHECK) return R_FALSE;
-		Trap_DEAD_END(RE_BAD_MEDIA); // need better!!!
+		raise Error_0(RE_BAD_MEDIA); // need better!!!
 	}
 
 	switch (result) {
@@ -544,7 +542,7 @@ REBNATIVE(do_codec)
 		break;
 
 	default:
-		Trap_DEAD_END(RE_BAD_MEDIA); // need better!!!
+		raise Error_0(RE_BAD_MEDIA); // need better!!!
 	}
 
 	return R_OUT;
@@ -552,10 +550,10 @@ REBNATIVE(do_codec)
 
 
 //
-//  selfless?: native [
-//      "Returns true if the context doesn't bind 'self." 
-//      context [any-word! any-object!] "A reference to the target context"
-//  ]
+//  selfless?: native 
+//  "Returns true if the context doesn't bind 'self." 
+//  - 
+//  context [any-word! any-object!] "A reference to the target context"
 //
 REBNATIVE(selflessq)
 {
@@ -565,7 +563,7 @@ REBNATIVE(selflessq)
 	if (ANY_WORD(val)) {
 		if (VAL_WORD_INDEX(val) < 0) return R_TRUE;
 		frm = VAL_WORD_FRAME(val);
-		if (!frm) Trap1_DEAD_END(RE_NOT_DEFINED, val);
+		if (!frm) raise Error_1(RE_NOT_DEFINED, val);
 	}
 	else frm = VAL_OBJ_FRAME(D_ARG(1));
 

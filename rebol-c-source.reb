@@ -15,10 +15,10 @@ REBOL [
 script-needs [
 	https://raw.githubusercontent.com/codebybrett/grammars/master/C/c-lexicals.reb
 	%line-encoded-blocks.reb
-	%load-until-blank.reb
 	%parse-kit.reb
 	%read-below.reb
 	%trees.reb
+	%rebol-source-conventions.reb
 ]
 
 rebol-c-source: context [
@@ -212,9 +212,7 @@ rebol-c-source: context [
 
 				if not lines [return none]
 
-				result: load-until-blank lines
-				if empty? result/2 [result/2: none]
-				result
+				decode-function-meta lines
 			]
 		]
 	]
