@@ -63,6 +63,7 @@ source-tool: context [
 	boot.natives.file: %../../ren-c/src/boot/natives.r
 	rebol.source.folder: %../../ren-c/src/
 	rebol.output.folder: none
+	notes-edit-list: %notes-edit-list.reb
 
 	max-line-length: 80 ; Not counting newline.
 
@@ -291,6 +292,15 @@ source-tool: context [
 						def/intro-notes: none
 					]
 
+					if all [
+						notes
+						r.id
+						edit: attempt [r-source/notes-to-edit/:r.id]
+						edit/checksum = checksum/secure to binary! notes
+					][
+						notes: edit/new
+						if empty? notes [notes: none]
+					]
 				]
 
 				notes: any [notes {}]
@@ -865,6 +875,8 @@ source-tool: context [
 
 	r-source: context [
 
+		notes-to-edit: none
+
 		native: context [
 
 			cache: none
@@ -878,6 +890,8 @@ source-tool: context [
 			processing: func [
 				/local block errors name spec position cache-item file
 			] [
+
+				notes-to-edit: load notes-edit-list
 
 				file: boot.natives.file
 				debug [process-natives (file)]
@@ -915,6 +929,7 @@ source-tool: context [
 
 		reset: func [] [
 
+			notes-to-edit: none
 			native/cache: none
 		]
 	]
