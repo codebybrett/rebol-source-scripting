@@ -43,21 +43,121 @@ decode-function-meta: funct [
 	result: load-until-blank lines
 	if none? result [return none]
 
-	if attempt [
+	attempt [
 		if empty? result/2 [result/2: none]
-		parse result/1 [
-			set-word! word!
-			opt [
-				position: string!
-				opt ['- (remove next position)]
-				(
-					spec: copy position
-					insert/only clear position spec
-				)
+		result
+	]
+]
+
+mold-spec: funct [
+	{Pretty format a spec to stay within line length.}
+	spec [block!]
+	width [integer!]
+] [
+
+	; TODO: This is a bit clunky, is there a better
+	; linebreaking system?  Might be better just working
+	; directly from the spec.
+
+	indent-space: {    }
+
+	wsp: compose [some (charset { ^-})]
+
+	rebol-value: parsing-at x [
+		res: any [attempt [load-next x] []]
+		if not empty? res [value: first res second res]
+	]
+
+	emit-line: func [] [
+
+		append result map-each x tokens [x/2]
+		append result newline
+		clear tokens
+	]
+
+	emit-token: func [/local token line-length] [
+
+		if 'newline = type [
+
+			if not empty? tokens [
+				token: last tokens
+				if find [indent wsp] token/1 [
+					remove back tail tokens
+				]
+			]
+
+			if all [
+				not empty? tokens
+				token: last tokens
+				[indent wsp] = token/1
+			] [
+				remove back tail tokens
+			]
+
+			emit-line
+
+			exit
+		]
+
+		token: compose [(type) (copy/part start finish)]
+
+		switch type [
+			indent [token/2: indent-space]
+			lbracket [indent-count: 1 + any [indent-count 0]]
+			rbracket [
+				if all [(indent-count) = 1 (value-count = 3)][
+					append/only tokens compose [comment (join indent-space {; No arguments})]
+					emit-line
+				]
+				indent-count: (any [indent-count 0]) - 1
+			]
+		]
+
+		if 'value = type [
+			value-count: 1 + any [value-count 0]
+			if string? value [
+				if none? string-instance [
+					string-instance: 'first
+					emit-line
+				]
+			]
+		]
+
+		line-length: 0 foreach x tokens [line-length: line-length + length? x/2]
+		if all [
+			0 < line-length
+			width < (line-length + length? token/2)
+		] [
+			emit-line
+			append/only tokens compose [indent (indent-space)]
+		]
+
+		append/only tokens token
+
+		if all ['value = type string? value 'first = string-instance] [
+			emit-line
+			string-instance: 'subsequent
+		]
+
+	]
+
+	text: mold-contents spec
+	result: make string! 2 * length? text
+	tokens: make block! []
+
+	if parse/all text [
+		any [
+			start: [
+				[
+					newline (type: 'newline) opt [wsp (emit-token) (type: 'indent)]
+					| #"[" (type: 'lbracket)
+					| #"]" (type: 'rbracket)
+					| wsp (type: 'wsp)
+					| rebol-value (type: 'value)
+				] finish: (emit-token)
 			]
 		]
 	] [
 		result
 	]
 ]
-

@@ -48,7 +48,6 @@ REBOL [
 
 script-needs [
 	%apropos.reb
-	%mold-contents.reb
 	%line-encoded-blocks.reb
 	%parse-kit.reb
 	%trees.reb
@@ -277,23 +276,8 @@ source-tool: context [
 						r.id: c-id-to-word name: def/param
 						r-info: attempt [copy r-source/native/cache/:r.id]
 
-						; Reformat native spec.
-						if r-info [
-							parse r-info [
-								string! [
-									end
-									| position: (
-										insert position '-
-										new-line position true
-										new-line next position true
-									)
-								]
-							]
-						]
-
-						meta: compose/deep [
-							(to set-word! r.id) native
-							(r-info)
+						meta: compose/only [
+							(to set-word! r.id) native (r-info)
 						]
 					][
 
@@ -326,7 +310,7 @@ source-tool: context [
 
 				notes: any [notes {}]
 
-				def/intro-notes: rejoin [mold-contents meta notes]
+				def/intro-notes: rejoin [mold-spec meta (max-line-length - 4) notes]
 				def/style: 'new-style-decl
 			]
 
