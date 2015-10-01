@@ -241,6 +241,30 @@ rebol-c-source: context [
 		]
 	]
 
+	generate: context [
+
+		natives.r: funct [{Generate natives.r}][
+
+			natives: sort map-each x scan/natives [x/meta]
+
+			remove-each native natives ['none = native/3]
+
+			result: make block! 1 + 3 * length? natives
+
+			foreach native natives [
+
+				insert position: tail result native
+				new-line position true
+			]
+
+			insert/only position: tail result to paren! []
+			new-line position true
+
+			result
+		]
+
+	]
+
 	list: context [
 
 		c-file: funct [{Retrieves a list of .c scripts (relative paths).}] [
