@@ -15,6 +15,26 @@ script-needs [
 	%load-until-blank.reb
 ]
 
+c-id-to-word: func [
+	{Translate C identifier to Rebol word.}
+	identifier
+	/local id
+] [
+
+	id: select [
+		{_add_add} ++
+	] identifier
+
+	if not id [
+		id: copy identifier
+		replace/all id #"_" #"-"
+		if #"q" = last id [change back tail id #"?"]
+		id: to word! id
+	]
+
+	id
+]
+
 decode-function-meta: funct [
 	{Return [meta notes] from intro text.}
 	lines
@@ -40,25 +60,4 @@ decode-function-meta: funct [
 		result
 	]
 ]
-
-c-id-to-word: func [
-	{Translate C identifier to Rebol word.}
-	identifier
-	/local id
-] [
-
-	id: select [
-		{_add_add} ++
-	] identifier
-
-	if not id [
-		id: copy identifier
-		replace/all id #"_" #"-"
-		if #"q" = last id [change back tail id #"?"]
-		id: to word! id
-	]
-
-	id
-]
-
 
