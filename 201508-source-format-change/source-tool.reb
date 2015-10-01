@@ -89,6 +89,7 @@ source-tool: context [
 		not-parsed: none
 		decl-updated: none
 		files-written: none
+		width-exceeded: none
 	]
 
 
@@ -226,6 +227,7 @@ source-tool: context [
 
 				if text/width-exceeded? intro [
 					log [line-width-exceeded intro (mold def/file) (def/name) (def/param)]
+					stats/width-exceeded: 1 + any [stats/width-exceeded 0]
 				]
 
 				parts: collect [
