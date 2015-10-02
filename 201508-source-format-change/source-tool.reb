@@ -64,7 +64,7 @@ source-tool: context [
 	rebol.output.folder: none
 	notes-edit-list: %notes-edit-list.reb
 
-	max-line-length: 80 ; Not counting newline.
+	max-line-length: 79 ; Not counting newline.
 
 	logfile: clean-path %source-tool.log.txt
 	log: func [message] [write/append logfile join newline mold new-line/all compose/only message false]
