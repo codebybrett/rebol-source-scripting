@@ -34,6 +34,10 @@ rebol-c-source: context [
 		{REBNATIVE(action)}
 	] ; Is there a better way to handle this?
 
+	cached: context [
+		functions: none
+	]
+
 	grammar: context bind [
 
 		rule: [some segment]
@@ -105,14 +109,8 @@ rebol-c-source: context [
 			]
 		]
 
-		;
-		; Rebol needs to bootstrap using old versions prior to having definitionally
-		; scoped returns implemented.  Hence don't assume passing a body with
-		; RETURN in it will return from the *caller*.  It will just wind up returning
-		; from *this loop wrapper* (in older Rebols) when the call is finished!
-		;
-		foreach-func-NO-RETURN: func [
-			{Iterate function sections by creating an object for each row.}
+		foreach-func: func [
+			{Iterate function sections.}
 			'record [word!] {Word set to function metadata for each function.}
 			text [string!] {C source text.}
 			body [block!] {Block to evaluate each time.}
@@ -204,15 +202,23 @@ rebol-c-source: context [
 				] {Invalid metadata for function.}
 			]
 
-			spec: compose/only [
-				proto (proto)
-				decl (decl)
-				meta (meta)
-				notes (notes)
-				position (index? text)
-				length (subtract index? eof index? text)
-				error (error)
+			position: compose [
+				intro (index? text)
+				proto (index? start)
+				body (index? position)
+				eof (index? eof)
 			]
+
+			spec: collect [
+				foreach word [proto decl meta notes position error] [
+					keep word
+					keep/only get word
+				]
+			]
+
+			new-line/all/skip spec true 2
+
+			spec
 		]
 
 		parse-intro: funct [
@@ -237,6 +243,35 @@ rebol-c-source: context [
 
 				decode-function-meta lines
 			]
+		]
+
+		parse-source-functions: funct [
+			{Parse function specs from C source.}
+			text [string!]
+		] [
+
+			collect [
+
+				foreach-func spec text [
+
+					analysis: analyse/function-section text spec
+					insert pos: tail spec compose/only [analysis (analysis)]
+					new-line pos true
+
+					keep/only new-line/all/skip spec true 2
+				]
+			]
+		]
+	]
+
+	analyse: context [
+
+		function-section: funct [
+			{Analyse a function returning facts.}
+			text
+			spec
+		] [
+			none
 		]
 	]
 
@@ -291,45 +326,45 @@ rebol-c-source: context [
 
 			files
 		]
-	]
-
-	scan: context [
-
-		functions: funct [
-			{Loads function specs from C source files.}
-		] [
-
-			result: make block! 400
-
-			foreach file list/c-file [
-
-				log [parse-natives (file)]
-
-				parser/foreach-func-NO-RETURN spec text: read/string src-folder/:file [
-
-					insert spec compose [
-						file (file)
-						line (line-of text spec/position)
-					]
-					new-line/all/skip spec true 2
-
-					insert/only position: tail result spec
-					new-line position true
-				]
-			]
-
-			result
-		]
 
 		natives: funct [
-			{Loads native specs from C source files.}
+			{Get native specs from C source files.}
 		] [
 
-			remove-each fn result: functions [
+			if none? cached/functions [scan]
+
+			remove-each fn result: copy cached/functions [
 				not equal? "REBNATIVE" fn/decl/1/1
 			]
 
 			result
 		]
+	]
+
+	scan: funct [
+		{Loads functionspecs from C source files.}
+	] [
+
+		result: make block! 400
+
+		foreach file list/c-file [
+
+			log [scan (file)]
+
+			text: read/string src-folder/:file
+
+			foreach spec parser/parse-source-functions text [
+
+				insert spec compose [
+					file (file)
+					line (line-of text spec/position/intro)
+				]
+
+				insert/only tail pos: result spec
+				new-line pos true
+			]
+		]
+
+		cached/functions: result
 	]
 ]

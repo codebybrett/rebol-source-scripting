@@ -51,7 +51,8 @@ rebol-c-source/log: get in rebol-c-source 'logfn
 
 ; Get list of natives.
 ;
-src-natives: rebol-c-source/scan/natives
+rebol-c-source/scan
+src-natives: rebol-c-source/list/natives
 
 ; Generate natives.r write to temporary files.
 natives-text: rebol-c-source/generate/natives.r src-natives
