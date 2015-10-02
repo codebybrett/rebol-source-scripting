@@ -170,7 +170,7 @@ source-tool: context [
 
 				slashed: func [text] [
 
-					encode-lines copy text {//} {  }
+					encode-lines copy text {//} { }
 				]
 
 				starred: funct [text] [

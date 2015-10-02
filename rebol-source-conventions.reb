@@ -153,6 +153,9 @@ mold-spec: funct [
 			]
 		]
 	] [
+		encode-lines result {} { }
+		trim/tail result
+		append result newline
 		result
 	]
 ]
