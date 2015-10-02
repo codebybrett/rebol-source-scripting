@@ -51,6 +51,7 @@ script-needs [
 	%parse-kit.reb
 	%trees.reb
 	%read-below.reb
+	%text-lines.reb
 	%../rebol-source-conventions.reb
 ]
 
@@ -223,7 +224,7 @@ source-tool: context [
 
 				intro: comment/format/slashed def/intro-notes
 
-				if text/width-exceeds? max-line-length intro [
+				if line-exceeds max-line-length intro [
 					log [line-width-exceeded intro (mold def/file) (def/name) (def/param)]
 					stats/width-exceeded: 1 + any [stats/width-exceeded 0]
 				]
@@ -248,7 +249,7 @@ source-tool: context [
 
 				rest: rejoin parts
 
-				if text/width-exceeds? max-line-length rest [
+				if line-exceeds max-line-length rest [
 					log [line-width-exceeded non-intro (mold def/file) (def/name) (def/param)]
 				]
 
@@ -424,7 +425,7 @@ source-tool: context [
 				old: cache/(name)/source
 				new: source-for name
 
-				if long-lines: text/width-exceeds? 127 new [
+				if long-lines: line-exceeds 127 new [
 					log [line-length-over-127 (mold name) (long-lines)]
 				]
 
@@ -840,23 +841,6 @@ source-tool: context [
 					rejoin map-each node children [regenerate node]
 				]
 			]
-
-			width-exceeds?: funct [max-line-length string][
-
-				parse/all string [
-					some [
-						bol: to newline eol: skip (
-							line: 1 + any [line 0]
-							if max-line-length < subtract index? eol index? bol [
-								width-exceeded: append any [width-exceeded copy []] line
-							]
-						)
-					]
-				]
-
-				width-exceeded
-			]
-
 		]
 	]
 
