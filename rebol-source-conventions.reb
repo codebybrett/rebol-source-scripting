@@ -86,14 +86,6 @@ mold-spec: funct [
 				]
 			]
 
-			if all [
-				not empty? tokens
-				token: last tokens
-				[indent wsp] = token/1
-			] [
-				remove back tail tokens
-			]
-
 			emit-line
 
 			exit
