@@ -48,7 +48,6 @@ REBOL [
 
 script-needs [
 	%apropos.reb
-	%line-encoded-blocks.reb
 	%parse-kit.reb
 	%trees.reb
 	%read-below.reb

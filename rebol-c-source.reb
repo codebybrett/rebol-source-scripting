@@ -14,7 +14,6 @@ REBOL [
 
 script-needs [
 	https://raw.githubusercontent.com/codebybrett/grammars/master/C/c-lexicals.reb
-	%line-encoded-blocks.reb
 	%parse-kit.reb
 	%read-below.reb
 	%trees.reb
