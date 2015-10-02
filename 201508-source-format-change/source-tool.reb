@@ -224,7 +224,7 @@ source-tool: context [
 
 				intro: comment/format/slashed def/intro-notes
 
-				if line-exceeds max-line-length intro [
+				if lines-exceeding max-line-length intro [
 					log [line-width-exceeded intro (mold def/file) (def/name) (def/param)]
 					stats/width-exceeded: 1 + any [stats/width-exceeded 0]
 				]
@@ -249,7 +249,7 @@ source-tool: context [
 
 				rest: rejoin parts
 
-				if line-exceeds max-line-length rest [
+				if lines-exceeding max-line-length rest [
 					log [line-width-exceeded non-intro (mold def/file) (def/name) (def/param)]
 				]
 
@@ -425,7 +425,7 @@ source-tool: context [
 				old: cache/(name)/source
 				new: source-for name
 
-				if long-lines: line-exceeds 127 new [
+				if long-lines: lines-exceeding 127 new [
 					log [line-length-over-127 (mold name) (long-lines)]
 				]
 
