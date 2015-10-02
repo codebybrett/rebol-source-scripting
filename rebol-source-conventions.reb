@@ -110,6 +110,9 @@ mold-spec: funct [
 			if string? value [
 				if none? string-instance [
 					string-instance: 'first
+					if 'indent = first last tokens [
+						remove back tail tokens
+					]
 					emit-line
 				]
 			]
