@@ -242,26 +242,44 @@ rebol-c-source: context [
 
 	generate: context [
 
-		natives.r: funct [{Generate natives.r}][
+		natives.r: funct [
+			{Generate natives.r}
+			natives [block!] {As returned from scan/natives.}
+		] [
+			natives: copy natives
+			remove-each native natives ['none = native/meta/3]
 
-			natives: sort map-each x scan/natives [x/meta]
+			head collect/into [
 
-			remove-each native natives ['none = native/3]
+				keep {REBOL [
+	System: "REBOL [R3] Language Interpreter and Run-time Environment"
+	Title: "Native function specs"
+	Rights: {
+		Copyright 2012 REBOL Technologies
+		REBOL is a trademark of REBOL Technologies
+	}
+	License: {
+		Licensed under the Apache License, Version 2.0.
+		See: http://www.apache.org/licenses/LICENSE-2.0
+	}
+	Note: {This is a generated file.}
+}
 
-			result: make block! 1 + 3 * length? natives
+				foreach native natives [
+					keep rejoin [
+						newline
+						{; !!! DO NOT EDIT HERE! This is generated from }
+						mold native/file { line } native/line newline
+						mold-contents native/meta
+					]
+				]
 
-			foreach native natives [
+				keep {^/;-- Expectation is that evaluation ends in UNSET!, empty parens makes one
+()
+}
 
-				insert position: tail result native
-				new-line position true
-			]
-
-			insert/only position: tail result to paren! []
-			new-line position true
-
-			result
+			] make string! 50000
 		]
-
 	]
 
 	list: context [
@@ -287,9 +305,14 @@ rebol-c-source: context [
 
 				log [parse-natives (file)]
 
-				parser/foreach-func-NO-RETURN spec read/string src-folder/:file [
-					insert spec compose [file (file)]
+				parser/foreach-func-NO-RETURN spec text: read/string src-folder/:file [
+
+					insert spec compose [
+						file (file)
+						line (line-of text spec/position)
+					]
 					new-line/all/skip spec true 2
+
 					insert/only position: tail result spec
 					new-line position true
 				]

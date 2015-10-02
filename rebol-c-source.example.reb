@@ -42,7 +42,8 @@ do tool-folder/rebol-c-source.reb
 
 ; Configure the source tool with source folder.
 ;
-rebol-c-source/src-folder: %../temporary.201508-source-format-change/src/
+base-dir: %../temporary.201508-source-format-change/
+rebol-c-source/src-folder: base-dir/(%src/)
 
 ; Turn on logging.
 ;
@@ -51,3 +52,7 @@ rebol-c-source/log: get in rebol-c-source 'logfn
 ; Get list of natives.
 ;
 src-natives: rebol-c-source/scan/natives
+
+; Generate natives.r write to temporary files.
+natives-text: rebol-c-source/generate/natives.r src-natives
+write base-dir/data/tmp-natives.reb natives-text
