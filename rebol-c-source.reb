@@ -17,6 +17,7 @@ script-needs [
 	%parse-kit.reb
 	%read-below.reb
 	%trees.reb
+	%text-lines.reb
 	%rebol-source-conventions.reb
 ]
 
@@ -34,8 +35,14 @@ rebol-c-source: context [
 		{REBNATIVE(action)}
 	] ; Is there a better way to handle this?
 
+	std-line-length: 79 ; Not counting newline.
+	max-line-length: 127 ; Not counting newline.
+
+
 	cached: context [
-		functions: none
+		files:
+		functions:
+		none
 	]
 
 	grammar: context bind [
@@ -266,10 +273,40 @@ rebol-c-source: context [
 
 	analyse: context [
 
+		file: funct [
+			{Analyse a function returning facts.}
+			file
+			text
+			meta
+		][
+			new-line/all collect [
+
+				if non-std-lines: lines-exceeding std-line-length text [
+					keep/only compose/only [line-exceeds (std-line-length) (file) (non-std-lines)]
+				]
+
+				if overlength-lines: lines-exceeding max-line-length text [
+					keep/only compose/only [line-exceeds (max-line-length) (file) (overlength-lines)]
+				]
+
+				wsp-not-eol: exclude c.lexical/charsets/ws-char charset {^/}
+				is-identifier: parsing-when bind [identifier] c.lexical/grammar
+				parse/all/case file-text: text bind [
+					some [
+						position:
+						is-identifier "malloc" (keep/only compose/only [malloc (file) (line-of file-text position)])
+						| wsp-not-eol eol (keep/only compose/only [eol-whitespace (file) (line-of file-text position)])
+						| c-pp-token
+					]
+				] c.lexical/grammar
+
+			] true
+		]
+
 		function-section: funct [
 			{Analyse a function returning facts.}
 			text
-			spec
+			meta
 		] [
 			none
 		]
@@ -307,6 +344,14 @@ rebol-c-source: context [
 
 	list: context [
 
+		analysis: funct [{Retrieves analysis from the files.}][
+			collect [
+				foreach [file data] cached/files [
+					keep data/analysis
+				]
+			]
+		]
+
 		c-file: funct [{Retrieves a list of .c scripts (relative paths).}] [
 
 			files: read-below src-folder
@@ -333,26 +378,41 @@ rebol-c-source: context [
 		{Loads functionspecs from C source files.}
 	] [
 
-		result: make block! 400
+		file-list: list/c-file
 
-		foreach file list/c-file [
+		cached/files: make block! 2 * length? file-list
+		cached/functions: make block! 300
+
+		foreach file file-list [
 
 			log [scan (file)]
 
 			text: read/string src-folder/:file
 
-			foreach spec parser/parse-source-functions text [
+			function-list: parser/parse-source-functions text
+
+			foreach spec function-list [
 
 				insert spec compose [
 					file (file)
 					line (line-of text spec/position/intro)
 				]
 
-				insert/only tail pos: result spec
+				insert/only tail pos: cached/functions spec
 				new-line pos true
 			]
+
+			file-data: compose/only [
+				functions (function-list)
+			]
+
+			append cached/files reduce [file file-data]
+
+			analysis: analyse/file file text file-data
+			insert pos: tail file-data compose/only [analysis (analysis)]
+			new-line pos true
 		]
 
-		cached/functions: result
+		new-line/all/skip cached/files true 2
 	]
 ]
