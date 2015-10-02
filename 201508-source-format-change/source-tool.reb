@@ -224,7 +224,7 @@ source-tool: context [
 
 				intro: comment/format/slashed def/intro-notes
 
-				if text/width-exceeded? intro [
+				if text/width-exceeds? max-line-length intro [
 					log [line-width-exceeded intro (mold def/file) (def/name) (def/param)]
 					stats/width-exceeded: 1 + any [stats/width-exceeded 0]
 				]
@@ -249,7 +249,7 @@ source-tool: context [
 
 				rest: rejoin parts
 
-				if text/width-exceeded? rest [
+				if text/width-exceeds? max-line-length rest [
 					log [line-width-exceeded non-intro (mold def/file) (def/name) (def/param)]
 				]
 
@@ -420,10 +420,14 @@ source-tool: context [
 				text/regenerate cache/(file)/tree
 			]
 
-			update: func [name /local old new folder] [
+			update: func [name /local old new folder long-lines] [
 
 				old: cache/(name)/source
 				new: source-for name
+
+				if long-lines: text/width-exceeds? 127 new [
+					log [line-length-over-127 (mold name) (long-lines)]
+				]
 
 				if not equal? old new [
 
@@ -838,13 +842,14 @@ source-tool: context [
 				]
 			]
 
-			width-exceeded?: funct [string][
+			width-exceeds?: funct [max-line-length string][
 
 				parse/all string [
 					some [
 						bol: to newline eol: skip (
+							line: 1 + any [line 0]
 							if max-line-length < subtract index? eol index? bol [
-								width-exceeded: true
+								width-exceeded: append any [width-exceeded copy []] line
 							]
 						)
 					]
