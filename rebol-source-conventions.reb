@@ -13,6 +13,7 @@ REBOL [
 
 script-needs [
 	%load-until-blank.reb
+	%mold-contents.reb
 ]
 
 c-id-to-word: func [

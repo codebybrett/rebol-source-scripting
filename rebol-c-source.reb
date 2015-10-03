@@ -18,6 +18,7 @@ script-needs [
 	%read-below.reb
 	%trees.reb
 	%text-lines.reb
+	%mold-contents.reb
 	%rebol-source-conventions.reb
 ]
 
