@@ -10,6 +10,8 @@ and cleanly separated function prototype.
 * Function introduction comment to contain loadable Rebol block values
 and separate free format notes.
 
+* I do not expect to modify these scripts once the conversion is committed.
+
 
 ### Notes ###
 

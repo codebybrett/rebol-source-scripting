@@ -139,7 +139,7 @@ source-tool: context [
 			reset ; Allow caches to be garbage collected.
 		]
 
-		code: func [{Update source comments (in-memory).}] [
+		code: func [{Update source (in-memory).}] [
 
 			debug [update-code]
 
