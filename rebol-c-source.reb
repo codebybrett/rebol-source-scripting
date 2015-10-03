@@ -36,8 +36,11 @@ rebol-c-source: context [
 		{REBNATIVE(action)}
 	] ; Is there a better way to handle this?
 
-	std-line-length: 79 ; Not counting newline.
-	max-line-length: 127 ; Not counting newline.
+	std-line-length: source-conventions/std-line-length
+	; Not counting newline.
+
+	max-line-length: source-conventions/max-line-length
+	; Not counting newline.
 
 	file-warnings: on
 	; True or not.

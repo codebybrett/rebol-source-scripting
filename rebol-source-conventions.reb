@@ -16,6 +16,15 @@ script-needs [
 	%mold-contents.reb
 ]
 
+source-conventions: context [
+
+	std-line-length: 79
+	; Not counting newline, lines should be no longer than this.
+
+	max-line-length: 127
+	; Not counting newline, lines over this length require an extra warning.
+]
+
 c-id-to-word: func [
 	{Translate C identifier to Rebol word.}
 	identifier
