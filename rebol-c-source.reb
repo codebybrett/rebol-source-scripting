@@ -38,6 +38,10 @@ rebol-c-source: context [
 	std-line-length: 79 ; Not counting newline.
 	max-line-length: 127 ; Not counting newline.
 
+	file-warnings: on
+	; True or not.
+
+	; --- End config.
 
 	cached: context [
 		files:
@@ -274,31 +278,51 @@ rebol-c-source: context [
 	analyse: context [
 
 		file: funct [
-			{Analyse a function returning facts.}
+			{Analyse a file returning facts.}
 			file
 			text
 			meta
 		][
+
+			if whitelisted? file [return none]
+
+			; TODO: Review/refactor.
+
 			new-line/all collect [
 
-				if non-std-lines: lines-exceeding std-line-length text [
-					keep/only compose/only [line-exceeds (std-line-length) (file) (non-std-lines)]
-				]
+				if file-warnings [
 
-				if overlength-lines: lines-exceeding max-line-length text [
-					keep/only compose/only [line-exceeds (max-line-length) (file) (overlength-lines)]
-				]
-
-				wsp-not-eol: exclude c.lexical/charsets/ws-char charset {^/}
-				is-identifier: parsing-when bind [identifier] c.lexical/grammar
-				parse/all/case file-text: text bind [
-					some [
-						position:
-						is-identifier "malloc" (keep/only compose/only [malloc (file) (line-of file-text position)])
-						| wsp-not-eol eol (keep/only compose/only [eol-whitespace (file) (line-of file-text position)])
-						| c-pp-token
+					if non-std-lines: lines-exceeding std-line-length text [
+						keep/only compose/only [line-exceeds (std-line-length) (file) (non-std-lines)]
 					]
-				] c.lexical/grammar
+
+					if overlength-lines: lines-exceeding max-line-length text [
+						keep/only compose/only [line-exceeds (max-line-length) (file) (overlength-lines)]
+					]
+
+					wsp-not-eol: exclude c.lexical/charsets/ws-char charset {^/}
+					eol-wsp: malloc: none
+					file-text: text
+					do bind [
+						is-identifier: parsing-when [identifier]
+						eol-wsp-check: [wsp-not-eol eol (append any [eol-wsp eol-wsp: copy []] line-of file-text position)]
+						malloc-check: [is-identifier "malloc" (append any [malloc malloc: copy []] line-of file-text position)]
+						parse/all/case file-text [
+							some [
+								position:
+								malloc-check
+								| eol-wsp-check
+								| c-pp-token
+							]
+						]
+					] c.lexical/grammar
+					if eol-wsp [
+						keep/only compose/only [eol-wsp (file) (eol-wsp)]
+					]
+					if malloc [
+						keep/only compose/only [malloc (file) (malloc)]
+					]
+				]
 
 			] true
 		]
@@ -344,15 +368,11 @@ rebol-c-source: context [
 
 	list: context [
 
-		analysis: funct [{Retrieves analysis from the files.}][
-			collect [
-				foreach [file data] cached/files [
-					keep data/analysis
-				]
-			]
-		]
-
 		c-file: funct [{Retrieves a list of .c scripts (relative paths).}] [
+
+			if not src-folder [
+				do make error! {Configuration required.}
+			]
 
 			files: read-below src-folder
 			remove-each file files [not parse/all file [thru %.c]]
@@ -371,6 +391,23 @@ rebol-c-source: context [
 			]
 
 			result
+		]
+
+		warnings: funct [{Retrieves analysis from the files.}][
+
+			if not cached/files [
+				either file-warnings [
+					do make error! "Scan required."
+				][
+					do make error! "File warnings are off, turn on and rescan."
+				]
+			]
+
+			collect [
+				foreach [file data] cached/files [
+					if data/analysis [keep data/analysis]
+				]
+			]
 		]
 	]
 
@@ -414,5 +451,10 @@ rebol-c-source: context [
 		]
 
 		new-line/all/skip cached/files true 2
+	]
+
+	whitelisted?: funct [{Returns true if file should not be analysed.} file][
+
+		false
 	]
 ]
