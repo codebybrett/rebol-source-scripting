@@ -59,9 +59,11 @@ source-tool: context [
 
 	; --- Config 
 
-	boot.natives.file: %../../ren-c/src/boot/natives.r
-	rebol.source.folder: %../../ren-c/src/
-	rebol.output.folder: none
+	rebol.source.folder: clean-path %../../ren-c/src/
+	rebol.output.folder: rebol.source.folder
+
+	boot.natives.file: rebol.source.folder/boot/natives.r
+
 	notes-edit-list: %notes-edit-list.reb
 
 	max-line-length: 79 ; Not counting newline.

@@ -8,9 +8,15 @@ do %config.reb
 
 src-output: target-root/%src/
 
-source-tool/logfile: target-root/%source-tool.log.txt
-source-tool/rebol.output.folder: src-output
+apropos source-tool [
 
-attempt [delete source-tool/logfile]
+	rebol.source.folder: source-root
 
-source-tool/update/all
+	rebol.output.folder: src-output
+	logfile: target-root/%source-tool.log.txt
+
+	attempt [delete logfile]
+
+	update/all
+]
+
