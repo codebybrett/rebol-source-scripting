@@ -457,8 +457,19 @@ rebol-c-source: context [
 		new-line/all/skip cached/files true 2
 	]
 
-	whitelisted?: funct [{Returns true if file should not be analysed.} file][
+	whitelisted?: funct [{Returns true if file should not be analysed.} file] [
 
-		false
+		whitelisted: [
+			%core/u-bmp.c 
+			%core/u-compress.c 
+			%core/u-gif.c 
+			%core/u-jpg.c 
+			%core/u-md5.c 
+			%core/u-png.c 
+			%core/u-sha1.c 
+			%core/u-zlib.c
+		]
+
+		if find whitelisted file [true]
 	]
 ]
