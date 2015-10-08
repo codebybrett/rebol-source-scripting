@@ -16,7 +16,7 @@ do %setup.reb
 requirements %scan-natives.reb [
 
 	[{Full scan.}
-		scan-time: delta-time [rn: rebol-c-source/scan/natives]
+		scan-time: delta-time [rn: rebol-c-source/list/natives]
 		time? ?? scan-time
 	]
 ]
