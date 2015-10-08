@@ -1,4 +1,5 @@
 REBOL [
+	title: {source-tool}
 	purpose: {Automatic source code modifications.}
 	author: {Brett Handley}
 	license: {Apache 2.0}

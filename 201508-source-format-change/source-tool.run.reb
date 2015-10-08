@@ -1,6 +1,9 @@
-REBOL []
+REBOL [
+	title: {source-tool.run.reb}
+]
 
 script-needs [
+	%apropos.reb
 	%source-tool.reb
 ]
 
