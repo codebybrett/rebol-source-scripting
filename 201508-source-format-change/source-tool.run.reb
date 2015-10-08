@@ -10,6 +10,7 @@ script-needs [
 do %config.reb
 
 src-output: target-root/%src/
+make-dir/deep src-output
 
 apropos source-tool [
 
