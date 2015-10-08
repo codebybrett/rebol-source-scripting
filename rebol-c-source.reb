@@ -270,8 +270,13 @@ rebol-c-source: context [
 				foreach-func spec text [
 
 					analysis: analyse/function-section text spec
-					insert pos: tail spec compose/only [analysis (analysis)]
+					insert pos: tail spec compose/only [
+						line (line-of text spec/position/intro)
+						analysis (analysis)
+					]
 					new-line pos true
+
+					spec/position: spec/position/intro
 
 					keep/only new-line/all/skip spec true 2
 				]
@@ -436,7 +441,6 @@ rebol-c-source: context [
 
 				insert spec compose [
 					file (file)
-					line (line-of text spec/position/intro)
 				]
 
 				insert/only tail pos: cached/functions spec
