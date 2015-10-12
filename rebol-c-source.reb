@@ -28,13 +28,25 @@ rebol-c-source: context [
 	; Path to src/
 
 	logfn: func [message] [print mold new-line/all compose/only message false]
-	log: none
+
+	log: none ; Set to a log function for logging.
 
 	proto-exclusions: [
 		{REBNATIVE(in_context)}
 		{REBNATIVE(native)}
 		{REBNATIVE(action)}
 	] ; Is there a better way to handle this?
+
+	whitelisted: [
+		%core/u-bmp.c 
+		%core/u-compress.c 
+		%core/u-gif.c 
+		%core/u-jpg.c 
+		%core/u-md5.c 
+		%core/u-png.c 
+		%core/u-sha1.c 
+		%core/u-zlib.c
+	] ; Not analysed for errors...
 
 	std-line-length: source-conventions/std-line-length
 	; Not counting newline.
@@ -421,7 +433,7 @@ rebol-c-source: context [
 	]
 
 	scan: funct [
-		{Loads functionspecs from C source files.}
+		{Loads function specs from C source files.}
 	] [
 
 		file-list: list/c-file
@@ -462,17 +474,6 @@ rebol-c-source: context [
 	]
 
 	whitelisted?: funct [{Returns true if file should not be analysed.} file] [
-
-		whitelisted: [
-			%core/u-bmp.c 
-			%core/u-compress.c 
-			%core/u-gif.c 
-			%core/u-jpg.c 
-			%core/u-md5.c 
-			%core/u-png.c 
-			%core/u-sha1.c 
-			%core/u-zlib.c
-		]
 
 		if find whitelisted file [true]
 	]
