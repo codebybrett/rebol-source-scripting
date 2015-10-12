@@ -12,13 +12,16 @@ REBOL [
 ]
 
 
-if not value? 'env [do %../reb/env.reb]
+if not value? 'env [do %../lib/env.reb]
 if not value? 'rebol-c-source [do %../rebol-c-source.reb]
 
 do %config.reb
 rebol-c-source/src-folder: target-root/(%src/)
 
-delta: delta-time [src-natives: rebol-c-source/scan/natives]
+delta: delta-time [
+	rebol-c-source/scan
+	src-natives: rebol-c-source/list/natives
+]
 
 src-natives: map-each x src-natives [to set-word! x/meta/1]
 boot-natives: load %../../ren-c/src/boot/natives.r

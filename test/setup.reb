@@ -11,7 +11,7 @@ REBOL [
 	Author: "Brett Handley"
 ]
 
-do %../reb/env.reb
+do %../lib/env.reb
 
 script-needs [
 	%requirements.reb
