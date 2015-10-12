@@ -128,10 +128,10 @@ mold-spec: funct [
 			]
 		]
 
-		line-length: 0 foreach x tokens [line-length: line-length + length? x/2]
+		line-length: 0 foreach x tokens [line-length: line-length + length x/2]
 		if all [
 			0 < line-length
-			width < (line-length + length? token/2)
+			width < (line-length + length token/2)
 		] [
 			emit-line
 			append/only tokens compose [indent (indent-space)]
@@ -147,7 +147,7 @@ mold-spec: funct [
 	]
 
 	text: mold-contents spec
-	result: make string! 2 * length? text
+	result: make string! 2 * length text
 	tokens: make block! []
 
 	if parse/all text [

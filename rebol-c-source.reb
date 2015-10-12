@@ -150,18 +150,18 @@ rebol-c-source: context [
 
 				if same? text position [
 					do make error! reform [
-						{Failed to parse function beyond position} index? position
+						{Failed to parse function beyond position} index-of position
 					]
 				]
 
 				spec: parse-function-section/next text 'position
 
 				if spec/error [
-					do make error! reform [spec/error {At position} (index? text) (mold spec/proto)]
+					do make error! reform [spec/error {At position} (index-of text) (mold spec/proto)]
 				]
 
 				if not position [
-					do make error! reform [{Could not determine extent of function-section at position} index? text]
+					do make error! reform [{Could not determine extent of function-section at position} index-of text]
 				]
 
 				set record spec
@@ -230,10 +230,10 @@ rebol-c-source: context [
 			]
 
 			position: compose [
-				intro (index? text)
-				proto (index? start)
-				body (index? position)
-				eof (index? eof)
+				intro (index-of text)
+				proto (index-of start)
+				body (index-of position)
+				eof (index-of eof)
 			]
 
 			spec: collect [
@@ -438,7 +438,7 @@ rebol-c-source: context [
 
 		file-list: list/c-file
 
-		cached/files: make block! 2 * length? file-list
+		cached/files: make block! 2 * length file-list
 		cached/functions: make block! 300
 
 		foreach file file-list [

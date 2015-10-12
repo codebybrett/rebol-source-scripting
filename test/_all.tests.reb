@@ -24,7 +24,7 @@ remove-each test tests: read %./ [
 	]
 ]
 
-print [{Running} length? tests {tests:}]
+print [{Running} length tests {tests:}]
 
 requirements %_all.tests.reb map-each test tests [
 	compose ['passed = last do (?? test)]
