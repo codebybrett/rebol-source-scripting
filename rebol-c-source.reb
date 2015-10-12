@@ -85,8 +85,11 @@ rebol-c-source: context [
 		not-function-section: parsing-unless function-section
 
 		intro-section: [intro-comment any eol]
-		intro-comment: [some [line-comment eol]]
-		not-intro: parsing-unless intro-comment
+
+		intro-comment: [is-intro-start some [line-comment eol]]
+
+		is-intro-start: parsing-when [{//} any #" " is-set-word]
+		not-intro: parsing-unless [is-intro-start]
 
 		other-section: [some [not-intro c-pp-token]]
 
@@ -110,6 +113,7 @@ rebol-c-source: context [
 			#"}"
 		]
 
+		is-set-word: parsing-at x [if set-word? attempt [first load-next x] [x]]
 		is-punctuator: parsing-when punctuator
 		is-lbrace: parsing-when [is-punctuator #"{"]
 		not-rbrace: parsing-unless [#"}"]
