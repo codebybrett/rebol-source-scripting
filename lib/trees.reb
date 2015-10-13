@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/trees.reb
-; date: 13-Oct-2015/14:42:44+11:00
+; date: 13-Oct-2015/15:46:07+11:00
 
 REBOL [
 	Title: "Trees"
@@ -26,10 +26,6 @@ REBOL [
 ;	Child nodes that are leaves could be any type - to allow some flexibility.
 ;
 ; ---------------------------------------------------------------------------------------------------------------------
-
-script-needs [
-	%r2r3-future.r
-]
 
 visit-tree: func [
 	{Evaluates a tree. RECURSE and MAP-NODES recursively process child nodes.}
