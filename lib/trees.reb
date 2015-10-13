@@ -1,3 +1,6 @@
+; file: https://raw.githubusercontent.com/codebybrett/reb/master/trees.reb
+; date: 13-Oct-2015/13:15:59+11:00
+
 REBOL [
 	Title: "Trees"
 	Version: 1.0.0
@@ -24,6 +27,9 @@ REBOL [
 ;
 ; ---------------------------------------------------------------------------------------------------------------------
 
+script-needs [
+	%r2r3-future.r
+]
 
 visit-tree: func [
 	{Evaluates a tree. RECURSE and MAP-NODES recursively process child nodes.}
@@ -228,7 +234,7 @@ infill-trees: funct [
 
 			if all [
 				same? head position head start ; Might be different blocks.
-				positive? length: subtract index? start index? position
+				positive? length: subtract index-of start index-of position
 			] [
 				fill-node: compose/only [
 					(word) none (

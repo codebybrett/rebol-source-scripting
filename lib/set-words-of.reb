@@ -1,3 +1,6 @@
+; file: https://raw.githubusercontent.com/codebybrett/reb/master/set-words-of.reb
+; date: 13-Oct-2015/13:15:58+11:00
+
 REBOL [
 	Title: "Set-Words-Of"
 	Version: 1.0.0

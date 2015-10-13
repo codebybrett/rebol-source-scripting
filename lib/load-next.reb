@@ -1,3 +1,6 @@
+; file: https://raw.githubusercontent.com/codebybrett/reb/master/load-next.reb
+; date: 13-Oct-2015/13:15:58+11:00
+
 REBOL [
 	Title: "Load-Next"
 	Version: 1.0.0

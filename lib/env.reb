@@ -1,3 +1,6 @@
+; file: https://raw.githubusercontent.com/codebybrett/reb/master/env.reb
+; date: 13-Oct-2015/13:15:58+11:00
+
 REBOL [
 	Title: "Environment"
 	Version: 1.0.0

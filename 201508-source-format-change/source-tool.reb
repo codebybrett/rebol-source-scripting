@@ -650,7 +650,7 @@ source-tool: context [
 						pre-comment (pre-comment)
 						post-notes (post-notes)
 						style new-style-decl
-						token (index? ref)
+						token (index-of ref)
 					]
 
 				]
@@ -729,7 +729,7 @@ source-tool: context [
 						pre-comment (pre-comment)
 						post-notes (post-notes)
 						style old-style-decl
-						token (index? ref)
+						token (index-of ref)
 					]
 				]
 			]
@@ -892,7 +892,7 @@ source-tool: context [
 						| skip ; TODO: Review - Error will never happen with this.
 					]
 				] [
-					do make error! reform [{File} mold file {has unexpected format at position.} index? position]
+					do make error! reform [{File} mold file {has unexpected format at position.} index-of position]
 				]
 
 				sort/skip cache 2

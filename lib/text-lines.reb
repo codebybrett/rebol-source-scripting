@@ -1,3 +1,6 @@
+; file: https://raw.githubusercontent.com/codebybrett/reb/master/text-lines.reb
+; date: 13-Oct-2015/13:15:59+11:00
+
 REBOL [
 	Title: "Text Lines"
 	Version: 1.0.0

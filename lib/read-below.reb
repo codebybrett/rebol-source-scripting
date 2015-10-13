@@ -1,3 +1,6 @@
+; file: https://raw.githubusercontent.com/codebybrett/reb/master/read-below.reb
+; date: 13-Oct-2015/13:15:58+11:00
+
 Rebol [
 	Title: "read-below"
 	Date: 12-Nov-2013
