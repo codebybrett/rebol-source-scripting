@@ -86,10 +86,8 @@ rebol-c-source: context [
 
 		intro-section: [intro-comment any eol]
 
-		intro-comment: [is-intro-start some [line-comment eol]]
-
-		is-intro-start: parsing-when [{//} any #" " is-set-word]
-		not-intro: parsing-unless [is-intro-start]
+		intro-comment: [some [line-comment eol]]
+		not-intro: parsing-unless intro-comment
 
 		other-section: [some [not-intro c-pp-token]]
 
@@ -113,7 +111,6 @@ rebol-c-source: context [
 			#"}"
 		]
 
-		is-set-word: parsing-at x [if set-word? attempt [first load-next x] [x]]
 		is-punctuator: parsing-when punctuator
 		is-lbrace: parsing-when [is-punctuator #"{"]
 		not-rbrace: parsing-unless [#"}"]
@@ -212,6 +209,10 @@ rebol-c-source: context [
 			set [meta notes] parse-intro/next text 'position
 
 			decl: parse-decl/next start: any [position text] 'position
+
+			if none? position [
+				do make error! reform [{Could not parse function declaration at position index} (index-of start)]
+			]
 
 			proto: trim/tail copy/part start position
 
