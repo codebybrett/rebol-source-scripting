@@ -18,10 +18,11 @@ requirements %test.notes-keep-whitespace.reb [
 
 	[{Parser must return notes faithfully.}
 
-		"  Y" = second rebol-c-source/parser/parse-intro {//
+		text: {//
 //  X: C
 //
 //  Y
 }
+		"  Y" = second rebol-c-source/parser/parse-intro text
 	]
 ]
