@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/requirements.reb
-; date: 13-Oct-2015/13:15:58+11:00
+; date: 13-Oct-2015/14:42:43+11:00
 
 REBOL [
 	Title: "Requirements"
@@ -75,7 +75,7 @@ requirements: funct [
 	results: new-line/all/skip collect [
 		foreach test block [
 			if not block? test [
-				do make error! reform [{Test must be a block. Got: } mold test]
+				fail [{Test must be a block. Got: } (mold test)]
 			]
 			value: none
 			error? set/any 'value try bind test 'throws-error

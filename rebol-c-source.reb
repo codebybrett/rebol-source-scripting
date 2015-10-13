@@ -150,19 +150,17 @@ rebol-c-source: context [
 			set/any 'result while [text: find-function position] [
 
 				if same? text position [
-					do make error! reform [
-						{Failed to parse function beyond position} index-of position
-					]
+					fail [{Failed to parse function beyond position} (index-of position)]
 				]
 
 				spec: parse-function-section/next text 'position
 
 				if spec/error [
-					do make error! reform [spec/error {At position} (index-of text) (mold spec/proto)]
+					fail [spec/error {At position} (index-of text) (mold spec/proto)]
 				]
 
 				if not position [
-					do make error! reform [{Could not determine extent of function-section at position} index-of text]
+					fail [{Could not determine extent of function-section at position} index-of text]
 				]
 
 				set record spec
@@ -211,7 +209,7 @@ rebol-c-source: context [
 			decl: parse-decl/next start: any [position text] 'position
 
 			if none? position [
-				do make error! reform [{Could not parse function declaration at position index} (index-of start)]
+				fail [{Could not parse function declaration at position index} (index-of start)]
 			]
 
 			proto: trim/tail copy/part start position
@@ -397,7 +395,7 @@ rebol-c-source: context [
 		c-file: funct [{Retrieves a list of .c scripts (relative paths).}] [
 
 			if not src-folder [
-				do make error! {Configuration required.}
+				fail {Configuration required.}
 			]
 
 			files: read-below src-folder
@@ -423,9 +421,9 @@ rebol-c-source: context [
 
 			if not cached/files [
 				either file-warnings [
-					do make error! "Scan required."
+					fail "Scan required."
 				][
-					do make error! "File warnings are off, turn on and rescan."
+					fail "File warnings are off, turn on and rescan."
 				]
 			]
 

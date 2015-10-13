@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/trees.reb
-; date: 13-Oct-2015/13:15:59+11:00
+; date: 13-Oct-2015/14:42:44+11:00
 
 REBOL [
 	Title: "Trees"

@@ -399,7 +399,7 @@ source-tool: context [
 				debug [tokenised-c (file)]
 
 				if not equal? source text/regenerate tree [
-					do make error! reform [{Tree for} mold file {does not represent the source file.}]
+					fail [{Tree for} (mold file) {does not represent the source file.}]
 				]
 
 				debug [check-regenerated-c (file)]
@@ -462,7 +462,7 @@ source-tool: context [
 			if def/name = "REBNATIVE" [
 				if not def/single-param [
 					?? def
-					do make error! reform [{Expected REBNATIVE to have single parameter.}]
+					fail! {Expected REBNATIVE to have single parameter.}
 				]
 				true
 			]
@@ -516,7 +516,7 @@ source-tool: context [
 				append decl/list file/declarations name
 			]
 
-			if empty? decl/list [do make error! {No declarations found. Check declaration parsing.}]
+			if empty? decl/list [fail! {No declarations found. Check declaration parsing.}]
 		]
 
 		parse-files: func [] [
@@ -565,7 +565,7 @@ source-tool: context [
 						do bind bind/copy condition 'node 'position
 					][
 						?? position
-						do make error! reform [{Node does not satisfy} mold condition]
+						fail [{Node does not satisfy} (mold condition)]
 					]
 
 					node
@@ -863,7 +863,7 @@ source-tool: context [
 
 			names: func [] [
 
-				if none? cache [do make error! {No specifications loaded. Use /init.}]
+				if none? cache [fail! {No specifications loaded. Use /init.}]
 				extract cache 2
 			]
 
@@ -892,7 +892,7 @@ source-tool: context [
 						| skip ; TODO: Review - Error will never happen with this.
 					]
 				] [
-					do make error! reform [{File} mold file {has unexpected format at position.} index-of position]
+					fail [{File} mold file {has unexpected format at position.} (index-of position)]
 				]
 
 				sort/skip cache 2

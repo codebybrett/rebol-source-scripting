@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/env.reb
-; date: 13-Oct-2015/13:15:58+11:00
+; date: 13-Oct-2015/14:42:41+11:00
 
 REBOL [
 	Title: "Environment"
@@ -65,9 +65,9 @@ env: context [
 			remove-each file files [not parse/all file [thru %.reb]]
 
 			foreach file files [
-				either text: attempt [read master/:file][
+				either text: attempt [read location: master/:file][
 					log [refresh true (file)]
-					write base/:file text
+					write base/:file rejoin [{; file: } location {^/; date: } now {^/^/} text]
 				][
 					log [refresh false (file)]
 				]
@@ -144,7 +144,7 @@ env: context [
 			not cached
 			none? script/text
 		] [
-			do make error! reform [{Could not retrieve} mold pattern]
+			fail [{Could not retrieve} (mold pattern)]
 		]
 
 		script
@@ -192,7 +192,9 @@ script-needs: funct [
 			pos: (pred: true) opt [set pred block! (pred: env/conditions? pred)]
 			set script [file! | url!] (if pred [env/run :script])
 		]
-	] [do make error! rejoin [{Could not parse script-needs near: } copy/part pos 40]]
+	] [
+		fail [{Could not parse script-needs near:} (copy/part pos 40)]
+	]
 ]
 
 env/base

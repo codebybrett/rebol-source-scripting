@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/apropos.reb
-; date: 13-Oct-2015/13:15:58+11:00
+; date: 13-Oct-2015/14:42:41+11:00
 
 REBOL [
 	Title: "Apropos"
@@ -48,7 +48,7 @@ apropos: func [
 
 		word! [bind body do reference]
 
-	] [do make error! {APROPOS only accepts simple references to contexts.}]
+	] [fail {APROPOS only accepts simple references to contexts.}]
 
 	either binding [body] [do body]
 ]

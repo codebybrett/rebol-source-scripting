@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/text-lines.reb
-; date: 13-Oct-2015/13:15:59+11:00
+; date: 13-Oct-2015/14:42:44+11:00
 
 REBOL [
 	Title: "Text Lines"
@@ -24,7 +24,7 @@ decode-lines: funct [
 	indent [string!] {Usually "  ".}
 ] [
 	if not parse/all text [any [line-prefix thru newline]] [
-		do make error! reform [{decode-lines expects each line to begin with} mold line-prefix { and finish with a newline.}]
+		fail [{decode-lines expects each line to begin with} (mold line-prefix) { and finish with a newline.}]
 	]
 	insert text newline
 	replace/all text join newline line-prefix newline

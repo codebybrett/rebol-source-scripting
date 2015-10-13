@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/mold-contents.reb
-; date: 13-Oct-2015/13:15:58+11:00
+; date: 13-Oct-2015/14:42:42+11:00
 
 REBOL [
 	Title: "Mold-Contents"
