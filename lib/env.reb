@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/env.reb
-; date: 13-Oct-2015/14:42:41+11:00
+; date: 14-Oct-2015/11:50:19+11:00
 
 REBOL [
 	Title: "Environment"
@@ -36,7 +36,9 @@ REBOL [
 ;	* Refresh file from url other than reb. Need a manifest?
 ;
 
-do %r2r3-future.r
+if not value? 'fail [
+	do %r2r3-future.r
+]
 
 env: context [
 
