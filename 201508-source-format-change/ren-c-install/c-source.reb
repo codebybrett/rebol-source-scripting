@@ -18,19 +18,25 @@ script-needs [
 	%rebol-c-source.reb
 ]
 
-base-dir: clean-path %../../
+repo-path: clean-path %../../
+
+data-path: repo-path/make/(%data/)
+make-dir data-path
 
 apropos rebol-c-source [
-
-	src-folder: base-dir/(%src/)
-
+	src-folder: repo-path/(%src/)
 	log: :logfn
-
 	scan
-
-	src-natives: list/natives
-	natives-text: generate/natives.r src-natives
-	write base-dir/src/boot/tmp-natives.reb natives-text
 ]
 
-HALT
+save/header data-path/function-list.reb rebol-c-source/cached/functions context [
+	title: {Function list}
+	date: now
+	comment: {This file is generated during build process.}
+]
+
+apropos rebol-c-source [
+	src-natives: list/natives
+	natives-text: generate/natives.r src-natives
+	write repo-path/src/boot/tmp-natives.reb natives-text
+]

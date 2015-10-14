@@ -12,6 +12,11 @@ REBOL [
 	Purpose: {Process Rebol C source.}
 ]
 
+;
+;
+; References to the old format (search 2012) should be removed after conversion.
+;
+
 script-needs [
 	https://raw.githubusercontent.com/codebybrett/grammars/master/C/c-lexicals.reb
 	%parse-kit.reb
@@ -71,49 +76,61 @@ rebol-c-source: context [
 
 		segment: [
 			function-section
-			| line-comment
+			| span-comment | line-comment
 			| other-section
 		]
 
-		function-section: [
+		function-section: [convention-2012 | convention-2015 ]
+
+		convention-2012: [
+			convention-2012.intro
+			function.decl
+			function.post-decl
+		] ; Should be removed after conversion to convention-2015.
+
+		convention-2012.intro: [
+			"/***" 10 100 "*" newline
+			"**" to newline "^/*/" any [#" " | #"^-"]
+		] ; Should be removed after conversion to convention-2015.
+
+		convention-2012.post-proto: [
+			"/*"
+			any [thru "**" [#" " | #"^-"] thru newline]
+			thru "*/" newline
+		] ; Should be removed after conversion to convention-2015.
+
+		convention-2015: [
 			opt intro-section
 			function.decl
-			function.body
+			function.post-decl
 		]
 
 		to-function: [any [not-function-section segment]]
+		; Used by find-function.
+
 		not-function-section: parsing-unless function-section
 
 		intro-section: [intro-comment any eol]
 
 		intro-comment: [some [line-comment eol]]
-		not-intro: parsing-unless intro-comment
+		not-intro: parsing-unless [[convention-2012.intro | intro-comment] function.decl]
 
 		other-section: [some [not-intro c-pp-token]]
 
-		function.decl: [
-			function.words function.args [eol | opt wsp eol]
+		function.decl: [function.words function.args [eol | opt wsp eol]]
+
+		function.post-decl: [
+			opt convention-2012.post-proto
 			is-lbrace
 		]
 
-		function.words: [function.id any [wsp function.id] opt [wsp function.star function.id]]
+		function.words: [function.id any [wsp function.id] opt [wsp function.star function.id] opt wsp]
 		function.args: [#"(" any [function.id | wsp | not-rparen punctuator] #")"]
 		function.id: copy identifier
 		function.star: #"*"
 
-		function.body: [braced]
-
-		braced: [
-			is-lbrace skip
-			some [
-				not-rbrace [braced | c-pp-token]
-			]
-			#"}"
-		]
-
 		is-punctuator: parsing-when punctuator
 		is-lbrace: parsing-when [is-punctuator #"{"]
-		not-rbrace: parsing-unless [#"}"]
 		not-rparen: parsing-unless [#")"]
 
 	] c.lexical/grammar
@@ -156,11 +173,7 @@ rebol-c-source: context [
 				spec: parse-function-section/next text 'position
 
 				if spec/error [
-					fail [spec/error {At position} (index-of text) (mold spec/proto)]
-				]
-
-				if not position [
-					fail [{Could not determine extent of function-section at position} index-of text]
+					fail [(spec/error) {at position} (index-of text) (mold spec/proto)]
 				]
 
 				set record spec
@@ -185,13 +198,22 @@ rebol-c-source: context [
 				parse/all/case string [grammar/function.decl position:]
 			] terms terminals
 
-			if empty? at tree 4 [return none] ; Not valid declaration.
+			if empty? at tree 4 [
+				return none ; Not a valid declaration.
+			]
 
 			if next [set var position]
 
 			using-tree-content tree
 
 			words: map-each node at tree/4 4 [assert [find [function.id function.star] node/1] node/3/content]
+
+			if empty? at tree 5 [
+				prettify-tree tree
+				?? tree
+				fail [{Could not parse declaration arguments. Near:} (copy/part string find string newline)]
+			]
+
 			args: map-each node at tree/5 4 [assert [find [function.id function.star] node/1] node/3/content]
 
 			reduce [words args]
@@ -204,24 +226,33 @@ rebol-c-source: context [
 			var [word!] "Variable updated with new block position"
 		] [
 
-			set [meta notes] parse-intro/next text 'position
+			set [meta notes] none
+
+			convention-2012: parse-2012-intro/next text 'position
+
+			unless convention-2012 [
+				set [meta notes] parse-intro/next text 'position
+			]
 
 			decl: parse-decl/next start: any [position text] 'position
 
 			if none? position [
+				near: (copy/part text find start newline)
+				print "Error near:"
+				print near
 				fail [{Could not parse function declaration at position index} (index-of start)]
 			]
 
 			proto: trim/tail copy/part start position
 
-			parse/all/case position [grammar/function.body eof:]
-			if next [set var eof]
+			if next [set var position]
 
 			error: case [
 
 				none? decl {Could not parse function declaration.}
 
 				if all [
+					not convention-2012
 					equal? {REBNATIVE} first decl/1
 					not find proto-exclusions proto
 				] [
@@ -236,11 +267,10 @@ rebol-c-source: context [
 				intro (index-of text)
 				proto (index-of start)
 				body (index-of position)
-				eof (index-of eof)
 			]
 
 			spec: collect [
-				foreach word [proto decl meta notes position error] [
+				foreach word [proto decl meta notes position error convention-2012] [
 					keep word
 					keep/only get word
 				]
@@ -250,6 +280,24 @@ rebol-c-source: context [
 
 			spec
 		]
+
+		parse-2012-intro: funct [
+			{Load function introduction comment.}
+			string
+			/next {Set a variable with next position.}
+			var [word!] "Variable updated with new block position"
+		] [
+
+			if none? string [return none]
+
+			; convention-2012 only - to be removed after conversion
+			parse/all string [grammar/convention-2012.intro position:]
+
+			if next [set var position]
+			if position [
+				true
+			]
+		] ; To be removed after conversion to convention-2015.
 
 		parse-intro: funct [
 			{Load function introduction comment.}
@@ -367,7 +415,12 @@ rebol-c-source: context [
 			natives [block!] {As returned from scan/natives.}
 		] [
 			natives: copy natives
-			remove-each native natives ['none = native/meta/3]
+			remove-each native natives [
+				any [
+					native/convention-2012
+					'none = native/meta/3
+				]
+			]
 
 			head collect/into [
 
