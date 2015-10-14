@@ -1,3 +1,6 @@
+; file: https://raw.githubusercontent.com/codebybrett/reb/master/r2r3-future.r
+; date: 14-Oct-2015/18:38:49+11:00
+
 ; https://raw.githubusercontent.com/metaeducation/ren-c/master/src/tools/r2r3-future.r
 
 REBOL [
@@ -91,9 +94,9 @@ unless value? 'fail [
 							not any-function? get :item
 						]
 					][
-						do make error! (
-							"FAIL requires complex expressions to be in a PAREN!"
-						)
+						do make error! rejoin [
+							"FAIL requires complex expressions to be in a PAREN! item: " mold item
+						]
 					]
 				]
 				do make error! form reduce reason
