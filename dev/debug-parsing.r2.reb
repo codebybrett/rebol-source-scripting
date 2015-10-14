@@ -12,8 +12,8 @@ REBOL [
 ]
 
 
-do http://codeconscious.com/rebol-scripts/parse-analysis-view.r
 if not value? 'tokenise-parse [do http://codeconscious.com/rebol-scripts/parse-analysis.r]
+if not value? 'visualise-parse [do http://codeconscious.com/rebol-scripts/parse-analysis-view.r]
 ; Will redefines script-needs.
 
 do %../test/setup.reb
