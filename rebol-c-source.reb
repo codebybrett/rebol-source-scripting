@@ -80,7 +80,10 @@ rebol-c-source: context [
 			| other-section
 		]
 
-		function-section: [convention-2012 | convention-2015 ]
+		function-section: [
+			convention-2012
+			| convention-2015 
+		]
 
 		convention-2012: [
 			convention-2012.intro
@@ -90,7 +93,7 @@ rebol-c-source: context [
 
 		convention-2012.intro: [
 			"/***" 10 100 "*" newline
-			"**" to newline "^/*/" any [#" " | #"^-"]
+			thru "*/" any [#" " | #"^-"]
 		] ; Should be removed after conversion to convention-2015.
 
 		convention-2012.post-proto: [
@@ -124,7 +127,7 @@ rebol-c-source: context [
 			is-lbrace
 		]
 
-		function.words: [function.id any [wsp function.id] opt [wsp function.star function.id] opt wsp]
+		function.words: [function.id opt wsp any [[function.id | function.star] opt wsp]]
 		function.args: [#"(" any [function.id | wsp | not-rparen punctuator] #")"]
 		function.id: copy identifier
 		function.star: #"*"
@@ -453,6 +456,7 @@ rebol-c-source: context [
 
 			files: read-below src-folder
 			remove-each file files [not parse/all file [thru %.c]]
+			sort files
 
 			files
 		]

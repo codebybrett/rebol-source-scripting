@@ -21,6 +21,7 @@ script-needs [
 repo-path: clean-path %../../
 
 data-path: repo-path/make/(%data/)
+
 make-dir data-path
 
 apropos rebol-c-source [
@@ -29,10 +30,10 @@ apropos rebol-c-source [
 	scan
 ]
 
-save/header data-path/function-list.reb rebol-c-source/cached/functions context [
-	title: {Function list}
+save/header data-path/file-analysis.reb rebol-c-source/cached/files context [
+	title: {File analysis}
 	date: now
-	comment: {This file is generated during build process.}
+	comment: {This file is generated during the build process.}
 ]
 
 apropos rebol-c-source [
