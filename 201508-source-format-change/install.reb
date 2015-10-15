@@ -39,7 +39,7 @@ update-file probe ren-c-root/src/tools/make-make.r [
 
 write probe ren-c-root/src/tools/c-source.reb read %ren-c-install/c-source.reb
 write probe ren-c-root/src/tools/make-headers.r read %ren-c-install/make-headers.r
-write probe ren-c-root/src/tools/make-headers.r read %ren-c-install/make-os-ext.r
+write probe ren-c-root/src/tools/make-os-ext.r read %ren-c-install/make-os-ext.r
 
 ; -- Copy lib files
 
