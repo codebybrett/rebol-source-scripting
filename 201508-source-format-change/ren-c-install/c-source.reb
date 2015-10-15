@@ -11,6 +11,7 @@ REBOL [
 	Purpose: {Process Rebol C source, extracting function data, etc.}
 ]
 
+do %r2r3-future.r
 do %lib/env.reb
 
 script-needs [
