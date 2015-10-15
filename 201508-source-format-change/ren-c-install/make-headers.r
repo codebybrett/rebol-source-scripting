@@ -111,16 +111,17 @@ file-analysis: load %../../make/data/file-analysis.reb
 remove-each [filepath file] file-analysis [not equal? %core/ first split-path filepath]
 
 for-each [filepath file] file-analysis [
+
 	remove-each fn file/functions [
 		any [
 			find/match fn/file "host-"
 			find/match fn/file "os-"
 		]
 	]
-]
 
-for-each fn functions [
-	emit-proto fn
+	for-each fn file/functions [
+		emit-proto fn
+	]
 ]
 
 emit-out {
