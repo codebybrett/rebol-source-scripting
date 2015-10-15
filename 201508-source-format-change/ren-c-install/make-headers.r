@@ -101,11 +101,11 @@ extern "C" ^{
 
 file-analysis: load %../../make/data/file-analysis.reb
 
-;do
+do
 [
 	remove-each [filepath file] file-analysis [filepath = %core/a-lib2.c]
 	print "Non-extended reb-lib version"
-	wait 5
+	wait 0.5
 ]
 
 remove-each [filepath file] file-analysis [not equal? %core/ first split-path filepath]
@@ -114,6 +114,16 @@ for-each [filepath file] file-analysis [
 
 	remove-each fn file/functions [
 		any [
+
+			parse fn/proto [
+				[
+					"RXIARG Value_To_RXI(" 
+					| "void RXI_To_Value("
+					| "void RXI_To_Block("
+					| "REBRXT Do_Callback("
+				] to end
+			]
+
 			find/match fn/file "host-"
 			find/match fn/file "os-"
 		]
@@ -123,6 +133,8 @@ for-each [filepath file] file-analysis [
 		emit-proto fn
 	]
 ]
+
+write clipboard:// mold file-analysis
 
 emit-out {
 #ifdef __cplusplus
