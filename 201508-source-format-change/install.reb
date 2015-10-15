@@ -4,10 +4,14 @@ REBOL [
 
 ask "Hit Enter to install into Ren/C"
 
+if not value? 'env [
+	do %../lib/env.reb
+]
+
 do %config.reb
 
 update-file: funct [{Update a file.} file replacements [block!]][
-	text: read file
+	text: to string! read file
 	foreach [old new] replacements [
 		if not find/case text old [
 			print reform [{Could not update file} file {with replacement} (mold new)]
@@ -65,7 +69,6 @@ lib-path: ren-c-root/src/tools/(%lib/)
 make-dir/deep probe lib-path
 
 foreach file files [
-?? file
 	name: second split-path file
 	write probe lib-path/:name read file
 ]
