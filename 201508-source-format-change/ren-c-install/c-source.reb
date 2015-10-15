@@ -11,34 +11,48 @@ REBOL [
 	Purpose: {Process Rebol C source, extracting function data, etc.}
 ]
 
-do %r2r3-future.r
-do %lib/env.reb
+if error? set/any 'script-error try [
 
-script-needs [
-	%apropos.reb
-	%rebol-c-source.reb
-]
+	do %r2r3-future.r
+	do %lib/env.reb
 
-repo-path: clean-path %../../
+	env/log: get in env 'logfn
 
-data-path: repo-path/make/(%data/)
+	script-needs [
+		%apropos.reb
+		%rebol-c-source.reb
+	]
 
-make-dir data-path
+	assert [value? 'apropos]
+	assert [value? 'rebol-c-source]
 
-apropos rebol-c-source [
-	src-folder: repo-path/(%src/)
-	log: :logfn
-	scan
-]
+	repo-path: clean-path %../../
 
-save/header data-path/file-analysis.reb rebol-c-source/cached/files context [
-	title: {File analysis}
-	date: now
-	comment: {This file is generated during the build process.}
-]
+	data-path: repo-path/make/(%data/)
 
-apropos rebol-c-source [
-	src-natives: list/natives
-	natives-text: generate/natives.r src-natives
-	write repo-path/src/boot/tmp-natives.reb natives-text
+	make-dir data-path
+
+	apropos rebol-c-source [
+		src-folder: repo-path/(%src/)
+		log: :logfn
+		scan
+	]
+
+	save/header data-path/file-analysis.reb rebol-c-source/cached/files context [
+		title: {File analysis}
+		date: now
+		comment: {This file is generated during the build process.}
+	]
+
+	apropos rebol-c-source [
+		src-natives: list/natives
+		natives-text: generate/natives.r src-natives
+		write repo-path/src/boot/tmp-natives.reb natives-text
+	]
+
+] [
+
+	?? script-error
+
+	quit/return 1
 ]
