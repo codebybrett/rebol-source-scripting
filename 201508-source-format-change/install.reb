@@ -23,24 +23,6 @@ update-file: funct [{Update a file.} file replacements [block!]][
 
 repo-base: clean-path %../
 
-update-file probe ren-c-root/src/core/f-extension.c [
-	"x*/^-RXIARG Value_To_RXI(" "*/^-RXIARG Value_To_RXI("
-	"x*/^-void RXI_To_Value(" "*/^-void RXI_To_Value("
-	"x*/^-void RXI_To_Block(" "*/^-void RXI_To_Block("
-	"x*/^-REBRXT Do_Callback(" "*/^-REBRXT Do_Callback("
-]
-
-update-file probe ren-c-root/src/core/a-lib2.c [
-	"x*/^-REBOL_API REBINT Reb_Dialect(" "*/^-REBOL_API REBINT Reb_Dialect("
-	"x*/^-REBOL_API void Reb_Set_Var(" "*/^-REBOL_API void Reb_Set_Var("
-	"x*/^-REBOL_API REBINT Reb_Map_Words(" "*/^-REBOL_API REBINT Reb_Map_Words("
-	"x*/^-REBOL_API REBINT Reb_Find_Word(" "*/^-REBOL_API REBINT Reb_Find_Word("
-]
-
-update-file probe ren-c-root/src/core/m-pools.c [
-	"*/^-void Check_Pool_Map(void)^/**" "** ////^-void Check_Pool_Map(void)^/**"
-]
-
 update-file probe ren-c-root/.gitignore [
 	"make/objs/^/^/" "make/objs/^/make/data/^/^/"
 	"src/boot/host-init.r^/^/" "src/boot/host-init.r^/src/boot/tmp-*^/^/"
@@ -57,6 +39,7 @@ update-file probe ren-c-root/src/tools/make-make.r [
 
 write probe ren-c-root/src/tools/c-source.reb read %ren-c-install/c-source.reb
 write probe ren-c-root/src/tools/make-headers.r read %ren-c-install/make-headers.r
+write probe ren-c-root/src/tools/make-headers.r read %ren-c-install/make-os-ext.r
 
 ; -- Copy lib files
 
