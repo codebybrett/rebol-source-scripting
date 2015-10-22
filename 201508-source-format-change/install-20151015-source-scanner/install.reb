@@ -5,10 +5,10 @@ REBOL [
 ask "Hit Enter to install into Ren/C"
 
 if not value? 'env [
-	do %../lib/env.reb
+	do %../../lib/env.reb
 ]
 
-do %config.reb
+do %../config.reb
 
 update-file: funct [{Update a file.} file replacements [block!]][
 	text: to string! read file
@@ -27,7 +27,7 @@ copy-file: funct [{Copy file to src} path][
 
 ; --------
 
-repo-base: clean-path %../
+repo-base: clean-path %../../
 
 update-file probe ren-c-root/.gitignore [
 	"make/objs/^/^/" "make/objs/^/make/data/^/^/"
