@@ -21,6 +21,12 @@ update-file: funct [{Update a file.} file replacements [block!]][
 	write file text
 ]
 
+copy-file: funct [{Copy file to src} path][
+	write probe %join ren-c-root/src/ path read join %ren-c-install/ path
+]
+
+; --------
+
 repo-base: clean-path %../
 
 update-file probe ren-c-root/.gitignore [
@@ -37,9 +43,16 @@ update-file probe ren-c-root/src/tools/make-make.r [
 ^-$(REBOL) $T/make-headers.r}
 ]
 
-write probe ren-c-root/src/tools/c-source.reb read %ren-c-install/c-source.reb
-write probe ren-c-root/src/tools/make-headers.r read %ren-c-install/make-headers.r
-write probe ren-c-root/src/tools/make-os-ext.r read %ren-c-install/make-os-ext.r
+foreach file [
+	%tools/c-source.reb
+	%tools/make-headers.r
+	%tools/make-os-ext.r
+	%core/a-lib2.c
+	%core/f-extension.c
+	%core/m-pools.c
+][
+	copy-file file
+]
 
 ; -- Copy lib files
 
