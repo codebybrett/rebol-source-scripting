@@ -12,6 +12,23 @@ and separate free format notes.
 
 * I do not expect to modify these scripts once the conversion is committed.
 
+### Running the source format conversion ###
+
+Assumes the parent repo shares a folder with the Ren-c repo. If not, modify config.reb.
+
+Using Rebol 2 or Rebol 3:
+
+    do %rebol-source-scripting/lib/env.reb
+    do %rebol-source-scripting/201508-source-format-change/source-tool.run.reb
+
+### Running the tab conversion ###
+
+Assumes the parent repo shares a folder with the Ren-c repo. If not, modify config.reb.
+
+Using Rebol 2 or Rebol 3:
+
+    do %rebol-source-scripting/lib/env.reb
+    do %rebol-source-scripting/201508-source-format-change/tab-conversion.run.reb
 
 ### Notes ###
 
