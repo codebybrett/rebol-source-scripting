@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/r2r3-future.r
-; date: 14-Oct-2015/18:38:49+11:00
+; date: 28-Oct-2015/21:55:12+11:00
 
 ; https://raw.githubusercontent.com/metaeducation/ren-c/master/src/tools/r2r3-future.r
 
@@ -30,6 +30,15 @@ REBOL [
 	}
 ]
 
+; Older versions of Rebol had a different concept of what FUNCTION meant
+; (an arity-3 variation of FUNC).  Eventually the arity-2 construct that
+; did locals-gathering by default named FUNCT overtook it, with the name
+; FUNCT deprecated.
+;
+unless (copy/part words-of :function 2) = [spec body] [
+	function: :funct
+]
+
 unless value? 'length [length: :length?]
 unless value? 'index-of [index-of: :index?]
 unless value? 'offset-of [offset-of: :offset?]
@@ -48,6 +57,7 @@ unless value? 'for-each [
 ;
 if system/version > 2.100.0 [; Rebol 3.
 	unset [
+		funct
 		length?
 		index?
 		offset?

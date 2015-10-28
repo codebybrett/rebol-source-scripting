@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/load-next.reb
-; date: 13-Oct-2015/14:42:42+11:00
+; date: 28-Oct-2015/21:55:10+11:00
 
 REBOL [
 	Title: "Load-Next"
@@ -19,7 +19,7 @@ REBOL [
 
 either system/version > 2.100.0 [; Rebol3
 
-	load-next: funct [
+	load-next: function [
 		{Load the next value. Return block with value and new position.}
 		string [string!]
 	] [
@@ -30,7 +30,7 @@ either system/version > 2.100.0 [; Rebol3
 
 ] [; Rebol2
 
-	load-next: funct [
+	load-next: function [
 		{Load the next value. Return block with value and new position.}
 		string [string!]
 	] [

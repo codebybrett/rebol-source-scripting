@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/load-until-blank.reb
-; date: 13-Oct-2015/14:42:42+11:00
+; date: 28-Oct-2015/21:55:11+11:00
 
 REBOL [
 	Title: "Load-Until-Blank"
@@ -20,7 +20,7 @@ script-needs [
 	%parse-kit.reb
 ]
 
-load-until-blank: funct [
+load-until-blank: function [
 	{Load rebol values from text until double newline.}
 	text [string!]
 	/next {Return values and next position.}

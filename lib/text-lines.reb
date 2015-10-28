@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/text-lines.reb
-; date: 13-Oct-2015/14:42:44+11:00
+; date: 28-Oct-2015/21:55:13+11:00
 
 REBOL [
 	Title: "Text Lines"
@@ -17,7 +17,7 @@ REBOL [
 	Purpose: {Transition load/next from Rebol 2 to Rebol 3.}
 ]
 
-decode-lines: funct [
+decode-lines: function [
 	{Decode text previously encoded using a line prefix e.g. comments (modifies).}
 	text [string!]
 	line-prefix [string!] {Usually "**" or "//".}
