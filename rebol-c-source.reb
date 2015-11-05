@@ -68,7 +68,6 @@ rebol-c-source: context [
 		%os/generic/ 
 		%os/linux/ 
 		%os/posix/ 
-		%os/stub/ 
 		%os/windows/
 	]
 	; Set to none to automatically search subfolders below src-folder.
