@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/read-below.reb
-; date: 6-Nov-2015/10:47:55+11:00
+; date: 6-Nov-2015/18:59:19+11:00
 
 Rebol [
 	Title: "read-below"
@@ -103,7 +103,7 @@ read-below: func [
 	log [folder (path) (new-line/all queue true)]
 
 	; Process queue
-	set/any 'result if not empty? queue [
+	set/any 'result to-value if not empty? queue [
 		until [
 			file: first queue
 			queue: remove queue

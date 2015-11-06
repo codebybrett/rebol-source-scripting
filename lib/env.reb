@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/env.reb
-; date: 6-Nov-2015/10:47:53+11:00
+; date: 6-Nov-2015/18:59:11+11:00
 
 REBOL [
 	Title: "Environment"
@@ -44,7 +44,7 @@ env: context [
 
 	master: https://raw.githubusercontent.com/codebybrett/reb/master/
 
-	base: either find [url!] type-of/word system/script/args [
+	base: either find [url!] to word! type-of system/script/args [
 		system/script/args
 	][
 		what-dir

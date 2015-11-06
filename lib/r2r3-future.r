@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/r2r3-future.r
-; date: 28-Oct-2015/21:55:12+11:00
+; date: 6-Nov-2015/18:59:19+11:00
 
 ; https://raw.githubusercontent.com/metaeducation/ren-c/master/src/tools/r2r3-future.r
 
@@ -50,6 +50,25 @@ unless value? 'for-each [
 	; Note: EVERY cannot be written in R3-Alpha because there is no way
 	; to write loop wrappers, given lack of definitionally scoped return
 	; or <transparent>
+]
+
+unless value? 'opt [
+	opt: func [
+		{NONEs become unset, all other value types pass through. (See: TO-VALUE)}
+		value [any-type!]
+	][
+		either none? get/any 'value [()][
+			get/any 'value
+		]
+	]
+]
+unless value? 'to-value [
+	to-value: func [
+		{Turns unset to NONE, with ANY-VALUE! passing through. (See: OPT)}
+		value [any-type!]
+	] [
+		either unset? get/any 'value [none][:value]
+	]
 ]
 
 ; Remove old names for Rebol 3.

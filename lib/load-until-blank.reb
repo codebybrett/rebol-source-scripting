@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/load-until-blank.reb
-; date: 28-Oct-2015/21:55:11+11:00
+; date: 6-Nov-2015/18:59:18+11:00
 
 REBOL [
 	Title: "Load-Until-Blank"
@@ -43,7 +43,7 @@ load-until-blank: function [
 		opt wsp opt [1 2 newline] position: to end
 	]
 
-	if parse/all text rule [
+	to-value if parse/all text rule [
 		values: load copy/part text position
 		reduce [values position]
 	]

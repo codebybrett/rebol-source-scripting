@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/requirements.reb
-; date: 6-Nov-2015/10:47:56+11:00
+; date: 6-Nov-2015/18:59:19+11:00
 
 REBOL [
 	Title: "Requirements"
@@ -30,7 +30,7 @@ either system/version > 2.100.0 [; Rebol3
 		condition [block!] {Bound to error object. Evaluated by ALL.}
 		test [block!]
 	] [
-		if error? err: try test [
+		to-value if error? err: try test [
 			all bind/copy condition in err 'type
 		]
 	]
@@ -49,7 +49,7 @@ either system/version > 2.100.0 [; Rebol3
 		condition [block!] {Bound to error object. Evaluated by ALL.}
 		test [block!]
 	] [
-		if error? err: try test [
+		to-value if error? err: try test [
 			all bind/copy condition in disarm err 'type
 		]
 	]

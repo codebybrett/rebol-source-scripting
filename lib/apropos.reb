@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/apropos.reb
-; date: 13-Oct-2015/14:42:41+11:00
+; date: 6-Nov-2015/18:59:10+11:00
 
 REBOL [
 	Title: "Apropos"
@@ -27,7 +27,7 @@ apropos: func [
 	/only {Evaluate the path only, not each segment of the path.}
 ] [
 
-	switch/default type-of/word :reference [
+	switch/default to word! type-of :reference [
 
 		object! [
 			bind body reference
@@ -46,7 +46,7 @@ apropos: func [
 			bind body evaluate-path reference
 		]
 
-		word! [bind body do reference]
+		word! [bind body get reference]
 
 	] [fail {APROPOS only accepts simple references to contexts.}]
 
