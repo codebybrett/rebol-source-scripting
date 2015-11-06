@@ -10,7 +10,7 @@ if not value? 'env [
 
 do %../config.reb
 
-update-file: funct [{Update a file.} file replacements [block!]][
+update-file: function [{Update a file.} file replacements [block!]][
 	text: to string! read file
 	foreach [old new] replacements [
 		if not find/case text old [
@@ -21,7 +21,7 @@ update-file: funct [{Update a file.} file replacements [block!]][
 	write file text
 ]
 
-copy-file: funct [{Copy file to src} path][
+copy-file: function [{Copy file to src} path][
 	write probe %join ren-c-root/src/ path read join %ren-c-install/ path
 ]
 

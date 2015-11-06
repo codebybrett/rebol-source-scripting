@@ -17,7 +17,7 @@ script-needs [
 	%read-below.reb
 ]
 
-parse-all-c-sources: funct [root][
+parse-all-c-sources: function [root][
 
 	files: read-below root
 

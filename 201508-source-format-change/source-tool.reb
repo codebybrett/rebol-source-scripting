@@ -75,7 +75,7 @@ source-tool: context [
 	debug: none
 	; Set to NONE or :LOG ...
 
-	timing: funct [code /local result] [
+	timing: function [code /local result] [
 		started: now/precise
 		log [started (code)]
 		set/any 'result do code
@@ -176,7 +176,7 @@ source-tool: context [
 					encode-lines copy text {//} { }
 				]
 
-				starred: funct [text] [
+				starred: function [text] [
 
 					width: max-line-length - 2
 
@@ -223,7 +223,7 @@ source-tool: context [
 
 			list: none
 
-			format: funct [def][
+			format: function [def][
 
 				intro: comment/format/slashed def/intro-notes
 
@@ -259,7 +259,7 @@ source-tool: context [
 				join intro rest
 			]
 
-			normalise: funct [def][
+			normalise: function [def][
 
 				debug [normalising (def)]
 
@@ -317,7 +317,7 @@ source-tool: context [
 				def/style: 'new-style-decl
 			]
 
-			sync-to-code: funct [def][
+			sync-to-code: function [def][
 
 				tree: file/cache/(def/file)/tree
 				position: at tree def/token
@@ -330,7 +330,7 @@ source-tool: context [
 				stats/decl-updated: 1 + any [stats/decl-updated 0]
 			]
 
-			where: funct [condition [block!] "DEF is bound"] [
+			where: function [condition [block!] "DEF is bound"] [
 
 				collect [
 					foreach def list compose/only [
@@ -345,7 +345,7 @@ source-tool: context [
 
 			cache: none
 
-			declarations: funct [name] [
+			declarations: function [name] [
 
 				result: make block! []
 
@@ -452,12 +452,12 @@ source-tool: context [
 
 		]
 
-		rebnatives: funct [] [
+		rebnatives: function [] [
 
 			extract rebnative-index 2
 		]
 
-		rebnative?: funct [def][
+		rebnative?: function [def][
 
 			if def/name = "REBNATIVE" [
 				if not def/single-param [
@@ -552,7 +552,7 @@ source-tool: context [
 
 				; TODO: Is there a simpler way to get info from tree while checking assumptions?
 
-				assert-node: funct [
+				assert-node: function [
 					{Check node at child slot position.}
 					condition [word! block!] {Check condition for NODE, POSITION.}
 					position
@@ -571,7 +571,7 @@ source-tool: context [
 					node
 				]
 
-				new-style-decl: funct [ref /structure] [
+				new-style-decl: function [ref /structure] [
 
 					; TODO: Refactor out common code with old-style-decl
 
@@ -655,7 +655,7 @@ source-tool: context [
 
 				]
 
-				old-style-decl: funct [ref /structure] [
+				old-style-decl: function [ref /structure] [
 
 					node: ref/1
 					string: node/3/content
@@ -835,7 +835,7 @@ source-tool: context [
 				prettify-tree using-tree-content result
 			]
 
-			regenerate: funct [
+			regenerate: function [
 				{Generate source text from source.}
 				block [block!] {As returned from parse-source.}
 			] [

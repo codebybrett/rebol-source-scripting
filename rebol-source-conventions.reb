@@ -45,7 +45,7 @@ c-id-to-word: func [
 	id
 ]
 
-decode-function-meta: funct [
+decode-function-meta: function [
 	{Return [meta notes] from intro text.}
 	lines
 ] [
@@ -59,7 +59,7 @@ decode-function-meta: funct [
 	]
 ]
 
-mold-spec: funct [
+mold-spec: function [
 	{Pretty format a spec to stay within line length.}
 	spec [block!]
 	width [integer!]

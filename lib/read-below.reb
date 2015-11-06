@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/read-below.reb
-; date: 17-Oct-2015/15:24:42+11:00
+; date: 6-Nov-2015/10:47:55+11:00
 
 Rebol [
 	Title: "read-below"
@@ -127,7 +127,7 @@ read-below: func [
 ]
 
 
-read-below-paths: funct [
+read-below-paths: function [
 	paths [block!]
 ][
 	collect [

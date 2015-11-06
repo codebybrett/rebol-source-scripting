@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/set-words-of.reb
-; date: 13-Oct-2015/14:42:44+11:00
+; date: 6-Nov-2015/10:47:56+11:00
 
 REBOL [
 	Title: "Set-Words-Of"
@@ -18,7 +18,7 @@ either system/version > 2.100.0 [; R3
 
 	; Brett Handley: Create R3 version to guard the INTO.
 
-	set-words-of: funct [
+	set-words-of: function [
 		"Returns items in a block of type set-word!."
 		block [block!]
 		/deep {Recurse into blocks to find set-words.}
@@ -42,7 +42,7 @@ either system/version > 2.100.0 [; R3
 
 ] [
 
-	set-words-of: funct [
+	set-words-of: function [
 		"Returns items in a block of type set-word!."
 		block [block!]
 		/deep {Recurse into blocks to find set-words.}

@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/parse-kit.reb
-; date: 13-Oct-2015/14:42:43+11:00
+; date: 6-Nov-2015/10:47:55+11:00
 
 REBOL [
 	Title: {Parsing Kit}
@@ -276,7 +276,7 @@ parsing-deep: func [
 
 ]
 
-parsing-earliest: funct [
+parsing-earliest: function [
 	{Create a rule that parses every TO rule in a list to find the match with lowest index.}
 	rules [block!] {Block of rules to pass to TO.}
 ] [
@@ -308,7 +308,7 @@ parsing-earliest: funct [
 	]
 ]
 
-parsing-expression: funct [
+parsing-expression: function [
 	{Creates a rule that replaces an expression with it's evaluation.}
 	symbol [word! block!] {The word or block of words that denote the expression to be evaluated.}
 	/all {Deep replace all expressions.}
@@ -317,7 +317,7 @@ parsing-expression: funct [
 	/unset {Unset! is retained in result.}
 ] [
 	use [value rest] [
-		rule: funct [x][
+		rule: function [x][
 			if not word? :x [fail {expression symbol must be a word!}]
 			x: to lit-word! :x
 			compose/deep/only [(:x) | (parsing-when [path!]) into [(:x) to end]]
@@ -339,7 +339,7 @@ parsing-expression: funct [
 	rule
 ]
 
-parsing-matched: funct [
+parsing-matched: function [
 	{Create a rule that evaluates a block of positions, one for each rule in a list.}
 	'word [word!] {Word set to result positions of the rules (will be local).}
 	rules [block!] {Block of rules to match.}
@@ -365,7 +365,7 @@ parsing-matched: funct [
 	]
 ]
 
-parsing-rewrite: funct [
+parsing-rewrite: function [
 	{Creates a rule that rewrites the input according to patterns and productions. }
 	rules [block!] {Rewriting rules in pairs of Pattern (parse rule) and Production (a compose block).}
 	/once {Only one full top down search and replace pass is performed.}
@@ -423,7 +423,7 @@ parsing-thru: func [
 
 ]
 
-parsing-to: funct [
+parsing-to: function [
 	{Creates a rule that performs a TO on an arbitrary rule.}
 	rule [block!] {Parse rule.}
 	/skip {Advance position.} next-position {A parse rule. Default is to SKIP.}
@@ -481,7 +481,7 @@ either system/version > 2.100.0 [; Rebol 3
 ; Rule manipulation
 ; ----------------------------------------------------------------------
 
-pre-rule-action: funct [
+pre-rule-action: function [
 	{Inserts action at start of the rule.}
 	rule
 	action {Action called before rule is tested.} [block!]
@@ -505,7 +505,7 @@ pre-rule-action: funct [
 ]
 
 
-post-rule-action: funct [
+post-rule-action: function [
 	{Appends action at end of the rule.}
 	rule
 	action [block!]
@@ -545,7 +545,7 @@ post-rule-action: funct [
 ; Parse events
 ; ----------------------------------------------------------------------
 
-on-parsing: funct [
+on-parsing: function [
 	{Modifies rule to call function for [name matched position] when rule begins (none), succeeds (true) or fails (false).}
 	rule [word!] {The rule name.}
 	event [function!] {Single block argument callback function.}
@@ -597,7 +597,7 @@ on-parsing: funct [
 ]
 
 
-restore-rule: funct [
+restore-rule: function [
 	{Restores rule modified by on-parsing function to original definition.}
 	rule [word!] {The rule name.}
 ] [
@@ -614,7 +614,7 @@ restore-rule: funct [
 ; Parse trees
 ; ----------------------------------------------------------------------
 
-get-parse: funct [
+get-parse: function [
 	{Returns a PARSE tree for specified rules. Check the result of Parse to determine validity.}
 	body [block!] {Invoke Parse on your input.}
 	rules [block! object!] {Block of words or object. Each word must identify a Parse rule.}
@@ -790,7 +790,7 @@ get-parse: funct [
 ; Block manipulation
 ; ----------------------------------------------------------------------
 
-impose: funct [
+impose: function [
 	{Reduce target expressions to their values within a block.}
 	symbol [word! path! block!] {A word or block of words that denote the expressions.}
 	block [block! paren!] {Block to modify.}
@@ -810,7 +810,7 @@ impose: funct [
 ; Other
 ; ----------------------------------------------------------------------
 
-after: funct [
+after: function [
 	{Return next input position if rule matches or none if unmatched.}
 	rule {Parse rule to match.}
 	input

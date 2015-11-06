@@ -18,7 +18,7 @@ if not value? 'visualise-parse [do http://codeconscious.com/rebol-scripts/parse-
 
 do %../test/setup.reb
 
-view-c: funct [text][
+view-c: function [text][
 
 	visualise-parse text rebol-c-source/grammar [rebol-c-source/valid? text]
 ]

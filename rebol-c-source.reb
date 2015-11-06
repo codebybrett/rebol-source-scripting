@@ -152,14 +152,14 @@ rebol-c-source: context [
 
 	] c.lexical/grammar
 
-	valid?: funct [{Return true if the text can be parsed by the grammar.} text] [
+	valid?: function [{Return true if the text can be parsed by the grammar.} text] [
 
 		parse/all/case text grammar/rule
 	]
 
 	parser: context [
 
-		find-function: funct [{Finds function in text.} text] [
+		find-function: function [{Finds function in text.} text] [
 
 			parse/all/case text [
 				grammar/to-function
@@ -201,7 +201,7 @@ rebol-c-source: context [
 			get/any 'result
 		]
 
-		parse-decl: funct [
+		parse-decl: function [
 			{Load function declaration.}
 			string [string!]
 			/next {Set a variable with next position.}
@@ -236,7 +236,7 @@ rebol-c-source: context [
 			reduce [words args]
 		]
 
-		parse-function-section: funct [
+		parse-function-section: function [
 			{Load function section.}
 			text
 			/next {Set a variable with next position.}
@@ -298,7 +298,7 @@ rebol-c-source: context [
 			spec
 		]
 
-		parse-2012-intro: funct [
+		parse-2012-intro: function [
 			{Load function introduction comment.}
 			string
 			/next {Set a variable with next position.}
@@ -316,7 +316,7 @@ rebol-c-source: context [
 			]
 		] ; To be removed after conversion to convention-2015.
 
-		parse-intro: funct [
+		parse-intro: function [
 			{Load function introduction comment.}
 			string
 			/next {Set a variable with next position.}
@@ -340,7 +340,7 @@ rebol-c-source: context [
 			]
 		]
 
-		parse-source-functions: funct [
+		parse-source-functions: function [
 			{Parse function specs from C source.}
 			text [string!]
 		] [
@@ -366,7 +366,7 @@ rebol-c-source: context [
 
 	analyse: context [
 
-		file: funct [
+		file: function [
 			{Analyse a file returning facts.}
 			file
 			text
@@ -416,7 +416,7 @@ rebol-c-source: context [
 			] true
 		]
 
-		function-section: funct [
+		function-section: function [
 			{Analyse a function returning facts.}
 			text
 			meta
@@ -427,7 +427,7 @@ rebol-c-source: context [
 
 	generate: context [
 
-		natives.r: funct [
+		natives.r: function [
 			{Generate natives.r}
 			natives [block!] {As returned from scan/natives.}
 		] [
@@ -462,7 +462,7 @@ rebol-c-source: context [
 
 	list: context [
 
-		c-file: funct [{Retrieves a list of .c scripts (relative paths).}] [
+		c-file: function [{Retrieves a list of .c scripts (relative paths).}] [
 
 			if not src-folder [
 				fail {Configuration required.}
@@ -487,7 +487,7 @@ rebol-c-source: context [
 			files
 		]
 
-		natives: funct [
+		natives: function [
 			{Get native specs from C source files.}
 		] [
 
@@ -500,7 +500,7 @@ rebol-c-source: context [
 			result
 		]
 
-		warnings: funct [{Retrieves analysis from the files.}][
+		warnings: function [{Retrieves analysis from the files.}][
 
 			if not cached/files [
 				either file-warnings [
@@ -518,7 +518,7 @@ rebol-c-source: context [
 		]
 	]
 
-	scan: funct [
+	scan: function [
 		{Loads function specs from C source files.}
 	] [
 
@@ -563,7 +563,7 @@ rebol-c-source: context [
 		new-line/all/skip cached/files true 2
 	]
 
-	whitelisted?: funct [{Returns true if file should not be analysed.} file] [
+	whitelisted?: function [{Returns true if file should not be analysed.} file] [
 
 		if find whitelisted file [true]
 	]

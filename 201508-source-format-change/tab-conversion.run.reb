@@ -15,11 +15,11 @@ log: :logfn
 
 attempt [delete logfile]
 
-folder?: funct [file [file!]][#"/" = last file]
+folder?: function [file [file!]][#"/" = last file]
 
 files: map-each file read-below rebol.source.folder [either folder? file [()][file]]
 
-file-extension: funct [file][
+file-extension: function [file][
 	name: second split-path file
 	find/last file "."
 ]
@@ -29,7 +29,7 @@ if not empty? exclude extensions [%.c %.h %.r %.txt] [fail {Unexpected extension
 
 tabbed-files: map-each file files [text: read rebol.source.folder/:file either find text tab [file][()]]
 
-detab-file: funct [file][
+detab-file: function [file][
 	text: read rebol.source.folder/:file
 	path-to-file: target-src/:file
 	make-dir/deep first split-path path-to-file

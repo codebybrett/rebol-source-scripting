@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/text-lines.reb
-; date: 28-Oct-2015/21:55:13+11:00
+; date: 6-Nov-2015/10:47:56+11:00
 
 REBOL [
 	Title: "Text Lines"
@@ -84,7 +84,7 @@ foreach-line: func [
 	get/any 'result
 ]
 
-lines-exceeding: funct [
+lines-exceeding: function [
 	{Return the line numbers of lines exceeding line-length}
 	line-length [integer!]
 	text [string!]
@@ -107,7 +107,7 @@ lines-exceeding: funct [
 	length-exceeded
 ]
 
-line-of: funct [
+line-of: function [
 	{Returns line number of position within text.}
 	text [string!]
 	position [string! integer!]

@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/file-tests.reb
-; date: 16-Oct-2015/16:02:57+11:00
+; date: 6-Nov-2015/10:47:53+11:00
 
 REBOL [
 	Title: "file tests"
@@ -15,7 +15,7 @@ REBOL [
 	Purpose: {Older Rebol 3s on linux do not return a slash at the end of a folder.}
 ]
 
-folders-of: funct [
+folders-of: function [
 	{Return the folders from a block of files.}
 	files [block!]
 ][
@@ -35,7 +35,7 @@ either empty? folders-of any [
 
 	; Workaround
 
-	is-dir?: funct [
+	is-dir?: function [
 		{Return true if target is a directory folder.}
 		target [file! url!]
 	][
@@ -49,7 +49,7 @@ either empty? folders-of any [
 
 ] [
 
-	is-dir?: funct [
+	is-dir?: function [
 		{Return true if target is a directory folder.}
 		target [file! url!]
 	][
