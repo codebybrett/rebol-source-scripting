@@ -247,7 +247,13 @@ source-tool: context [
 					keep def/name
 					keep rejoin [#"(" def/param #")" newline]
 
-					keep #"^{"
+					keep "^{^/"
+
+					if def/body-notes [
+						body-comments: copy def/body-notes
+						encode-lines body-comments {^-//} { }
+						keep body-comments
+					]
 				]
 
 				rest: rejoin parts
@@ -274,7 +280,7 @@ source-tool: context [
 					]
 				][
 
-					either native: rebnative? def [
+					either rebnative? def [
 
 						r.id: c-id-to-word name: def/param
 						r-info: attempt [copy r-source/native/cache/:r.id]
@@ -309,6 +315,15 @@ source-tool: context [
 						notes: edit/new
 						if empty? trim copy notes [notes: none]
 					]
+				]
+
+				if all [
+					rebnative? def
+					notes
+				] [
+					assert [none? def/body-notes]
+					def/body-notes: notes
+					notes: none
 				]
 
 				notes: any [notes {}]
@@ -639,6 +654,16 @@ source-tool: context [
 
 						trim/tail post-notes
 						trim/auto post-notes
+
+						position: next position
+					]
+
+					if all [
+						not tail? position
+						position/1/1 = 'comment.doubleslash
+					][
+						body-notes: position/1/3/content
+						position: next position
 					]
 
 					compose/only [
@@ -649,6 +674,7 @@ source-tool: context [
 						intro-notes (intro-notes)
 						pre-comment (pre-comment)
 						post-notes (post-notes)
+						body-notes (body-notes)
 						style new-style-decl
 						token (index-of ref)
 					]
@@ -718,6 +744,16 @@ source-tool: context [
 
 						trim/tail post-notes
 						trim/auto post-notes
+
+						position: next position
+					]
+
+					if all [
+						not tail? position
+						position/1/1 = 'comment.doubleslash
+					][
+						body-notes: position/1/3/content
+						position: next position
 					]
 
 					compose/only [
@@ -728,6 +764,7 @@ source-tool: context [
 						intro-notes (intro-notes)
 						pre-comment (pre-comment)
 						post-notes (post-notes)
+						body-notes (body-notes)
 						style old-style-decl
 						token (index-of ref)
 					]
@@ -760,7 +797,9 @@ source-tool: context [
 						[comment.decorative | comment.multiline.standard]
 						wsp decl
 						[comment.decorative | comment.multiline.standard]
-						any newline #"{"
+						any newline
+						#"{" newline
+						opt comment.doubleslash
 					]
 					new-style-decl: [
 						[comment.doubleslash some comment.doubleslash | comment.banner]
@@ -768,7 +807,9 @@ source-tool: context [
 						opt comment.multiline.intact
 						any newline
 						decl
-						any newline #"{"
+						any newline
+						#"{" newline
+						opt comment.doubleslash
 					]
 					comment: [comment.doubleslash | comment.multiline.other]
 					to-next: [first-comment-marker newline]
