@@ -307,7 +307,7 @@ source-tool: context [
 						edit/checksum = checksum/secure to binary! notes
 					][
 						notes: edit/new
-						if empty? notes [notes: none]
+						if empty? trim copy notes [notes: none]
 					]
 				]
 
