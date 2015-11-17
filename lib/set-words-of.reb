@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/set-words-of.reb
-; date: 6-Nov-2015/10:47:56+11:00
+; date: 18-Nov-2015/10:24:40+11:00
 
 REBOL [
 	Title: "Set-Words-Of"
@@ -25,7 +25,7 @@ either system/version > 2.100.0 [; R3
 	] [
 
 		if not deep [
-			RETURN remove-each w copy block [not set-word? :w]
+			RETURN map-each w block [either set-word? :w [w][()]]
 		]
 
 		unique collect [
