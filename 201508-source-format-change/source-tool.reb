@@ -327,6 +327,9 @@ source-tool: context [
 					rebnative? def
 					notes
 				] [
+					if find notes {1: } [
+						log [suspected-numbered-arg-in-notes (def/file) (mold def/param)]
+					]
 					assert [none? def/post-notes]
 					def/post-notes: notes
 					notes: none
