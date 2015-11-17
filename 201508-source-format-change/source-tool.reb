@@ -247,6 +247,12 @@ source-tool: context [
 					keep def/name
 					keep rejoin [#"(" def/param #")" newline]
 
+					if def/post-notes [
+						post-comments: copy def/post-notes
+						encode-lines post-comments {//} {  }
+						keep post-comments
+					]
+
 					keep "^{^/"
 
 					if def/body-notes [
@@ -321,8 +327,8 @@ source-tool: context [
 					rebnative? def
 					notes
 				] [
-					assert [none? def/body-notes]
-					def/body-notes: notes
+					assert [none? def/post-notes]
+					def/post-notes: notes
 					notes: none
 				]
 
