@@ -248,7 +248,7 @@ source-tool: context [
 					keep rejoin [#"(" def/param #")" newline]
 
 					if def/post-notes [
-						post-comments: copy def/post-notes
+						post-comments: trim/tail copy def/post-notes
 						encode-lines post-comments {//} { }
 						keep post-comments
 					]
