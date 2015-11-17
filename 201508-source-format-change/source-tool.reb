@@ -249,7 +249,7 @@ source-tool: context [
 
 					if def/post-notes [
 						post-comments: copy def/post-notes
-						encode-lines post-comments {//} {  }
+						encode-lines post-comments {//} { }
 						keep post-comments
 					]
 
