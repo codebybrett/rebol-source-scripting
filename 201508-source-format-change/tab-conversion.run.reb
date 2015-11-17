@@ -4,7 +4,7 @@ REBOL []
 do %config.reb
 
 rebol.source.folder: source-root/%src/
-target-src: target-root/%detab/ ; Change to same as source.
+target-src: rebol.source.folder
 
 make-dir/deep target-src
 
@@ -25,11 +25,9 @@ file-extension: function [file][
 ]
 
 extensions: sort unique map-each file files [file-extension file]
-unxpected-extensions: exclude extensions [%.c %.h %.r %.txt]
+unxpected-extensions: exclude extensions [%.c %.h %.r %.txt %.inc]
 ?? unxpected-extensions
-if not empty? unxpected-extensions [fail {Unexpected extensions.}]
-
-tabbed-files: map-each file files [text: read rebol.source.folder/:file either find text tab [file][()]]
+; if not empty? unxpected-extensions [fail {Unexpected extensions.}]
 
 detab-file: function [file][
 	text: read rebol.source.folder/:file
@@ -39,6 +37,16 @@ detab-file: function [file][
 	log [detabbed (path-to-file)]
 ]
 
-foreach file files [detab-file file]
+detab-ext: function [ext {eg. %.c} [file!]][
+	foreach file files [
+		if ext = file-extension file [detab-file file]
+	]
+]
+
+tabbed-files: map-each file files [
+	text: read rebol.source.folder/:file
+	either find text tab [file][()]
+]
+
 
 HALT
