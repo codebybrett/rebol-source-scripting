@@ -25,7 +25,9 @@ file-extension: function [file][
 ]
 
 extensions: sort unique map-each file files [file-extension file]
-if not empty? exclude extensions [%.c %.h %.r %.txt] [fail {Unexpected extensions.}]
+unxpected-extensions: exclude extensions [%.c %.h %.r %.txt]
+?? unxpected-extensions
+if not empty? unxpected-extensions [fail {Unexpected extensions.}]
 
 tabbed-files: map-each file files [text: read rebol.source.folder/:file either find text tab [file][()]]
 
