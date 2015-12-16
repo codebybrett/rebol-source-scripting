@@ -20,7 +20,7 @@ REBOL [
 ;
 ; 1. The source tool script: %rebol-c-source.reb
 ; 2. The script environment script: %env.reb
-;    - which is normally located within a subfolder %reb/
+;    - which is normally located within a subfolder %reb/ or %lib/
 ;
 ; -------------------------------------------------------------------------
 

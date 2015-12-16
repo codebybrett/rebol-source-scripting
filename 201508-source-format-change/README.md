@@ -1,6 +1,8 @@
 2015-source-format-change
 =========================
 
+[Update: This conversion was run on 19 Nov 2015 against Ren/C ("REBOL C Source format conversion").]
+
 A one-off format conversion project to modify Rebol C sources.
 
 * Modify formating of function declarations from the original starred format
