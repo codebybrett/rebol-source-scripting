@@ -173,6 +173,24 @@ limitations under the License.}
 							]
 						]
 
+						if header/msg [
+							keep newline
+							keep {************************************************************************^/}
+							keep newline
+							either header/msg = 'standard-programmer-note [
+								keep {NOTE to PROGRAMMERS:
+
+  1. Keep code clear and simple.
+  2. Document unusual code, reasoning, or gotchas.
+  3. Use same style for code, vars, indent(4), comments, etc.
+  4. Keep in mind Linux, OS X, BSD, big/little endian CPUs.
+  5. Test everything, then test it again.}
+								keep newline
+							][
+								keep header/msg
+							]
+						]
+
 						if header/rest [keep header/rest]
 					]
 				]
@@ -183,7 +201,7 @@ limitations under the License.}
 					{***********************************************************************/^/}
 				]
 
-				replace text {^/**  ****} {^/****}
+				replace/all text {^/**  ****} {^/****}
 			]
 
 		]
