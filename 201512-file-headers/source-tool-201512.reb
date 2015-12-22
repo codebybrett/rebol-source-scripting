@@ -31,6 +31,28 @@ conversion: context [
 	logfile: clean-path %source-tool.log.txt
 	log: func [message] [write/append logfile join newline mold new-line/all compose/only message false]
 
+	analysis: function [
+		{Analyses file headers.}
+	][
+
+		new-line/all/skip collect [
+
+			foreach [file hdr] file/headers [
+				either string? hdr [
+					keep compose [(file) not-parsed]
+				][
+					either none? hdr [
+						keep compose/only [(file) no-header]
+					][
+						if not none? hdr/analysis [
+							keep compose/only [(file) (hdr/analysis)]
+						]
+					]
+				]
+			]
+
+		] true 2
+	]
 
 	edit: func [
 		{Modify source}
@@ -143,7 +165,7 @@ conversion: context [
 			/local
 			hdr-rule hdr emit not-eol not-field title rights trademark rest eol eof meta msg
 			field-char field
-			position
+			position analysis
 		] [
 
 			field-char: charset [#"A" - #"Z" #"a" - #"z"]
@@ -171,9 +193,10 @@ conversion: context [
 
 				hdr-rule: [
 					newline
+					position:
 					[
 						{REBOL [R3] Language Interpreter and Run-time Environment} (title: 'r3)
-						| {REBOL Language Interpreter and Run-time Environment} (title: 'non-r3)
+						| {REBOL Language Interpreter and Run-time Environment} eol: (title: copy/part position eol)
 					] newline
 					newline
 					any [position: {Copyright 20} to newline eol: newline (emit-rights)]
@@ -215,7 +238,7 @@ conversion: context [
   3. Use same style for code, vars, indent(4), comments, etc.
   4. Keep in mind Linux, OS X, BSD, big/little endian CPUs.
   5. Test everything, then test it again.} newline
-							(msg: 'note-to-programmers)
+							(msg: 'standard-programmer-note)
 						]
 					]
 					position:
@@ -235,6 +258,15 @@ conversion: context [
 					if rights [new-line/all rights true]
 					if meta [new-line/all/skip meta true 2]
 
+					analysis: new-line/all collect [
+						if title <> 'r3 [keep 'non-standard-title]
+						if none? trademark [keep 'no-trademark]
+						if all [not none? msg msg <> 'standard-programmer-note] [keep 'non-standard-message]
+						if none? meta [keep 'missing-meta]
+						if not none? rest [keep 'additional-information]
+					] true
+					if empty? analysis [analysis: none]
+
 					compose/only [
 						title (title)
 						rights (rights)
@@ -243,6 +275,7 @@ conversion: context [
 						meta (meta)
 						msg (msg)
 						rest (rest)
+						analysis (analysis)
 					]
 				] [
 					print [{Failed to parse header near:} mold copy/part position 200]
