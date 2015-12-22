@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/text-lines.reb
-; date: 6-Nov-2015/10:47:56+11:00
+; date: 22-Dec-2015/18:00+11:00
 
 REBOL [
 	Title: "Text Lines"
@@ -37,7 +37,7 @@ decode-lines: function [
 ]
 
 encode-lines: func [
-	{Encode text using a line prefix (e.g. comments).}
+	{Encode text using a line prefix, e.g. comments (modifies).}
 	text [string!]
 	line-prefix [string!] {Usually "**" or "//".}
 	indent [string!] {Usually "  ".}
@@ -47,7 +47,13 @@ encode-lines: func [
 	; Note: Preserves newline formatting of the block.
 
 	; Encode newlines.
-	replace/all text newline rejoin [newline line-prefix indent]
+	bol: join line-prefix indent
+	parse/all text [
+		any [
+			thru newline pos:
+			[newline (pos: insert pos line-prefix) | (pos: insert pos bol)] :pos
+		]
+	]
 
 	; Indent head if original text did not start with a newline.
 	pos: insert text line-prefix
@@ -90,11 +96,13 @@ lines-exceeding: function [
 	text [string!]
 ] [
 
+	line-list: line: none
+
 	count-line: [
 		(
 			line: 1 + any [line 0]
 			if line-length < subtract index-of eol index-of bol [
-				length-exceeded: append any [length-exceeded copy []] line
+				line-list: append any [line-list copy []] line
 			]
 		)
 	]
@@ -104,7 +112,7 @@ lines-exceeding: function [
 		bol: skip to end eol: count-line
 	]
 
-	length-exceeded
+	line-list
 ]
 
 line-of: function [
