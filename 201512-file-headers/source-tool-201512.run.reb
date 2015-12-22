@@ -17,7 +17,16 @@ script-needs [
 	%apropos.reb
 ]
 
-attempt [delete %source-tool.log.txt]
+apropos conversion [
+
+	logfile: clean-path join target.folder %source-tool.log.txt
+	attempt [delete logfile]
+
+	headers: file/headers
+
+	save join target.folder %source-tool.headers.r headers
+	save join target.folder %source-tool.analysis.r header/analysis headers
+]
 
 conversion/run
 

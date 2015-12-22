@@ -22,44 +22,20 @@ conversion: context [
 	{Conversion terms}
 
 	source.folder: none
-	; Path to %src/
+	; Path to repo (%src/ is a subfolder).
 
 	target.folder: none
-	; Path to %src/
+	; Path to repo (%src/ is a subfolder).
 
 
 	logfile: clean-path %source-tool.log.txt
 	log: func [message] [write/append logfile join newline mold new-line/all compose/only message false]
-
-	analysis: function [
-		{Analyses file headers.}
-	][
-
-		new-line/all/skip collect [
-
-			foreach [file hdr] file/headers [
-				either string? hdr [
-					keep compose [(file) not-parsed]
-				][
-					either none? hdr [
-						keep compose/only [(file) no-header]
-					][
-						if not none? hdr/analysis [
-							keep compose/only [(file) (hdr/analysis)]
-						]
-					]
-				]
-			]
-
-		] true 2
-	]
 
 	edit: func [
 		{Modify source}
 		source
 	] [
 
-		log [TODO: conversion/edit]
 		source
 	]
 
@@ -97,13 +73,42 @@ conversion: context [
 			/local files
 		] [
 
-			files: read-below source.folder
+			files: read-below join source.folder %src/
+
+			files: map-each file files [join %src/ file]
 
 			remove-each name files [
-				not parse/all name [[%core/ | %os/] thru %.c]
+				not parse/all name [[%src/core/ | %src/os/] thru %.c]
 			]
 
 			sort files
+		]
+	]
+
+	header: context [
+
+		analysis: function [
+			{Analyses file headers as returned from file/headers.}
+			header-list [block!]
+		] [
+
+			new-line/all/skip collect [
+
+				foreach [file hdr] header-list [
+					either string? hdr [
+						keep compose [(file) not-parsed]
+					] [
+						either none? hdr [
+							keep compose/only [(file) no-header]
+						] [
+							if not none? hdr/analysis [
+								keep compose/only [(file) (hdr/analysis)]
+							]
+						]
+					]
+				]
+
+			] true 2
 		]
 	]
 
