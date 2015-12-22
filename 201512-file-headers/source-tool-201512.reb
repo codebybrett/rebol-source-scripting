@@ -95,6 +95,8 @@ conversion: context [
 			header-list [block!]
 		] [
 
+			meta-fields: copy []
+
 			new-line/all/skip collect [
 
 				foreach [file hdr] header-list [
@@ -107,14 +109,127 @@ conversion: context [
 							if not none? hdr/analysis [
 								keep compose/only [(file) (hdr/analysis)]
 							]
+							if block? hdr/meta [
+								append meta-fields extract hdr/meta 2
+							]
 						]
 					]
 				]
+				keep compose/only [meta-fields (unique meta-fields)]
 
 			] true 2
 		]
 
 		as: context [
+
+			format2016: func [
+				{Return header text/}
+				header [block! string! none!]
+			] [
+
+				if none? header [return copy {}]
+
+				either string? header [
+					text: copy header
+				] [
+					text: rejoin collect [
+						keep newline
+						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
+						keep reduce [{"Ren-C" branch @ https://github.com/metaeducation/ren-c} newline]
+
+						keep newline
+
+						foreach right any [header/rights []] [
+							keep reduce [right newline]
+						]
+						keep rejoin [{Copyright 2012-} now/year { Rebol Open Source Contributors} newline]
+						if header/trademark = 'rebol [
+							keep {REBOL is a trademark of REBOL Technologies^/}
+						]
+
+						keep newline
+						keep {See README.md and CREDITS.md for more information.^/}
+						keep newline
+
+
+						if header/notice = 'apache-2.0 [
+							keep {Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.}
+							keep newline
+							keep newline
+						]
+
+						if header/meta [
+							keep {//=////////////////////////////////////////////////////////////////////////=//^/}
+							keep newline
+							foreach [key value] header/meta [
+
+								if (key <> 'notes TRUE) [
+
+									key: join form key #":"
+
+									either find value newline [
+										value: join newline encode-lines value {} {  }
+									] [
+										insert/dup tail key #" " 1 + max 0 10 - length key
+										if empty? value [value: none]
+										value: join value newline
+									]
+
+									keep rejoin [key value]
+								]
+							]
+						]
+
+						if all [ FALSE
+							header/meta
+							find header/meta 'notes
+							not empty? header/meta/notes
+						][
+							keep newline
+							keep {//=////////////////////////////////////////////////////////////////////////=//^/}
+							keep newline
+							keep header/meta/notes
+							keep newline
+						]
+
+						if header/msg [
+							keep newline
+							keep {//=////////////////////////////////////////////////////////////////////////=//^/}
+							keep newline
+							either header/msg = 'standard-programmer-note [
+								keep {NOTE to PROGRAMMERS:
+
+  1. Keep code clear and simple.
+  2. Document unusual code, reasoning, or gotchas.
+  3. Use same style for code, vars, indent(4), comments, etc.
+  4. Keep in mind Linux, OS X, BSD, big/little endian CPUs.
+  5. Test everything, then test it again.}
+								keep newline
+							] [
+								keep header/msg
+							]
+						]
+
+						if header/rest [keep header/rest]
+					]
+				]
+
+				text: rejoin [
+					encode-lines text {//} {  }
+				]
+
+				replace/all text {^///  //=/} {^///=/}
+			]
 
 			format2012: func [
 				{Return header text/}
@@ -125,7 +240,7 @@ conversion: context [
 
 				either string? header [
 					text: copy header
-				][
+				] [
 					text: rejoin collect [
 						keep newline
 						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
@@ -167,7 +282,7 @@ limitations under the License.}
 									value: join newline encode-lines copy value {} {  }
 								] [
 									if all [not empty? value] [
-										insert/dup tail key #" " max 0 1 + 8 - length key
+										insert/dup tail key #" " 1 + max 0 8 - length key
 									]
 									value: join value newline
 								]
@@ -188,7 +303,7 @@ limitations under the License.}
   4. Keep in mind Linux, OS X, BSD, big/little endian CPUs.
   5. Test everything, then test it again.}
 								keep newline
-							][
+							] [
 								keep header/msg
 							]
 						]
@@ -205,7 +320,6 @@ limitations under the License.}
 
 				replace/all text {^/**  ****} {^/****}
 			]
-
 		]
 	]
 
@@ -397,7 +511,7 @@ limitations under the License.}
 			source [block!]
 		] [
 
-			hdr: conversion/header/as/format2012 source/header
+			hdr: conversion/header/as/format2016 source/header
 
 			join any [hdr {}] source/body
 		]
