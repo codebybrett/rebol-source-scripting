@@ -11,11 +11,11 @@ REBOL [
 	Purpose: {Converts REBOL source file headers to a new format.}
 ]
 
+do %setup.reb
+
 script-needs [
 	%apropos.reb
 ]
-
-do %setup.reb
 
 attempt [delete %source-tool.log.txt]
 
