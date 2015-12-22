@@ -50,6 +50,8 @@ conversion: context [
 			file [file!]
 		] [
 
+			log [parsing (file)]
+
 			text: read/string join source.folder file
 
 			source-text/header text
@@ -79,7 +81,7 @@ conversion: context [
 			files: map-each file files [join %src/ file]
 
 			remove-each name files [
-				not parse/all name [[%src/core/ | %src/os/] thru %.c]
+				not parse/all name [[%src/include/ | %src/core/ | %src/os/] thru %. [%c | %h]]
 			]
 
 			sort files
