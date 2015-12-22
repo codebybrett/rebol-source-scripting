@@ -29,9 +29,9 @@ conversion: context [
 
 
 	logfile: clean-path %source-tool.log.txt
-	log: func [message] [write/append logfile join newline mold new-line/all compose/only message false]
+	log: function [message] [write/append logfile join newline mold new-line/all compose/only message false]
 
-	edit: func [
+	edit: function [
 		{Modify source}
 		source
 	] [
@@ -41,10 +41,9 @@ conversion: context [
 
 	file: context [
 
-		header-of: func [
+		header-of: function [
 			{Return file header dialect.}
 			file [file!]
-			/local text
 		] [
 
 			text: read/string join source.folder file
@@ -52,9 +51,8 @@ conversion: context [
 			source-text/header text
 		]
 
-		headers: func [
+		headers: function [
 			{Return file headers.}
-			/local result position
 		] [
 
 			files: list
@@ -68,9 +66,8 @@ conversion: context [
 			result
 		]
 
-		list: func [
+		list: function [
 			{Return files.}
-			/local files
 		] [
 
 			files: read-below join source.folder %src/
@@ -112,7 +109,7 @@ conversion: context [
 		]
 	]
 
-	run: func [
+	run: function [
 		{Convert the files.}
 	] [
 
@@ -146,10 +143,9 @@ conversion: context [
 			line-comment: [{//} to newline]
 		]
 
-		header: func [
+		header: function [
 			{Return file header.}
 			text
-			/local result hdr
 		] [
 
 			if source-text/valid? text [
@@ -179,82 +175,82 @@ conversion: context [
 			not-field: parsing-unless [field]
 			not-eol: parsing-unless [newline]
 
-			attempt [
+			emit-meta: func [/local key] [
+				meta: any [meta copy []]
+				key: replace/all copy/part position eof #" " #"-"
+				remove back tail key
+				append meta reduce [
+					to word! key
+					trim/auto copy/part eof eol
+				]
+			]
 
-				emit-meta: func [/local key] [
-					meta: any [meta copy []]
-					key: replace/all copy/part position eof #" " #"-"
-					remove back tail key
-					append meta reduce [
-						to word! key
-						trim/auto copy/part eof eol
+			emit-rights: func [] [
+				rights: any [rights copy []]
+				append rights copy/part position eol
+			]
+
+			hdr-rule: [
+				newline
+				position:
+				[
+					{REBOL [R3] Language Interpreter and Run-time Environment} (title: 'r3)
+					| {REBOL Language Interpreter and Run-time Environment} eol: (title: copy/part position eol)
+				] newline
+				newline
+				any [position: {Copyright 20} to newline eol: newline (emit-rights)]
+				position:
+				opt [{REBOL is a trademark of REBOL Technologies} newline (trademark: 'rebol)]
+				opt [
+					newline
+					position: {Additional code modifications and improvements Copyright 2012 Saphirion AG} eol: newline (emit-rights)
+				]
+				newline
+				position:
+				[{Licensed under the Apache License, Version 2.0} thru {limitations under the License.} (notice: 'apache-2.0)] newline
+				any newline
+				position:
+				opt [
+					50 100 #"*" newline
+					newline
+					some [
+						position:
+						field eof: [
+							#" " to newline any [
+								newline not-field not-eol to newline
+							]
+							| any [1 2 newline 2 20 #" " to newline]
+						] eol: (emit-meta) newline
+						| newline
 					]
 				]
-
-				emit-rights: func [] [
-					rights: any [rights copy []]
-					append rights copy/part position eol
-				]
-
-				hdr-rule: [
+				position:
+				opt [
+					50 100 #"*" newline
 					newline
-					position:
 					[
-						{REBOL [R3] Language Interpreter and Run-time Environment} (title: 'r3)
-						| {REBOL Language Interpreter and Run-time Environment} eol: (title: copy/part position eol)
-					] newline
-					newline
-					any [position: {Copyright 20} to newline eol: newline (emit-rights)]
-					position:
-					opt [{REBOL is a trademark of REBOL Technologies} newline (trademark: 'rebol)]
-					opt [
-						newline
-						position: {Additional code modifications and improvements Copyright 2012 Saphirion AG} eol: newline (emit-rights)
-					]
-					newline
-					position:
-					[{Licensed under the Apache License, Version 2.0} thru {limitations under the License.} (notice: 'apache-2.0)] newline
-					any newline
-					position:
-					opt [
-						50 100 #"*" newline
-						newline
-						some [
-							position:
-							field eof: [
-								#" " to newline any [
-									newline not-field not-eol to newline
-								]
-								| any [1 2 newline 2 20 #" " to newline]
-							] eol: (emit-meta) newline
-							| newline
-						]
-					]
-					position:
-					opt [
-						50 100 #"*" newline
-						newline
-						[
-							copy msg [{WARNING to PROGRAMMERS} thru {before submitting it.}] newline
-							| {NOTE to PROGRAMMERS:
+						copy msg [{WARNING to PROGRAMMERS} thru {before submitting it.}] newline
+						| {NOTE to PROGRAMMERS:
 
   1. Keep code clear and simple.
   2. Document unusual code, reasoning, or gotchas.
   3. Use same style for code, vars, indent(4), comments, etc.
   4. Keep in mind Linux, OS X, BSD, big/little endian CPUs.
   5. Test everything, then test it again.} newline
-							(msg: 'standard-programmer-note)
-						]
+						(msg: 'standard-programmer-note)
 					]
-					position:
-					opt [
-						copy rest [
-							50 100 #"*" newline
-							to end
-						]
-					]
-					position:
 				]
+				position:
+				opt [
+					copy rest [
+						50 100 #"*" newline
+						to end
+					]
+				]
+				position:
+			]
+
+			attempt [
 
 				hdr: decode-lines text {**} {  }
 
@@ -289,7 +285,7 @@ conversion: context [
 			]
 		]
 
-		load: func [
+		load: function [
 			{Parse source text.}
 			text [string!]
 		] [
@@ -297,7 +293,7 @@ conversion: context [
 			text
 		]
 
-		render: func [
+		render: function [
 			{Return text of the source.}
 			source
 		] [
@@ -311,7 +307,7 @@ conversion: context [
 		]
 	]
 
-	update: func [
+	update: function [
 		{Rewrite the header and save the changes.}
 		file [file!]
 	] [
