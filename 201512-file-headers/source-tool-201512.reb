@@ -1,5 +1,5 @@
 REBOL [
-	Title: "Rebol C Source File Header Conversion TERMS"
+	Title: "Rebol C Source File Header Conversion"
 	Rights: {
 		Copyright 2015 Brett Handley
 	}
@@ -9,6 +9,10 @@ REBOL [
 	}
 	Author: "Brett Handley"
 	Purpose: {Process Rebol C source to change the source file headers.}
+	Comment: {
+		Works with Rebol 2 and Rebol 3 (rebolsource).
+		At the time of writing Ren/C is often changing so this script may or may not work with it.
+	}
 ]
 
 script-needs [
@@ -107,24 +111,104 @@ conversion: context [
 
 			] true 2
 		]
+
+		as: context [
+
+			format2012: func [
+				{Return header text/}
+				header [block! string! none!]
+			] [
+
+				if none? header [return copy {}]
+
+				either string? header [
+					text: copy header
+				][
+					text: rejoin collect [
+						keep newline
+						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
+						keep newline
+
+						foreach right any [header/rights []] [
+							keep reduce [right newline]
+						]
+						if header/trademark = 'rebol [
+							keep {REBOL is a trademark of REBOL Technologies^/}
+						]
+
+						keep newline
+
+						if header/notice = 'apache-2.0 [
+							keep {Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.}
+							keep newline
+							keep newline
+						]
+
+						if header/meta [
+							keep {************************************************************************^/}
+							keep newline
+							foreach [key value] header/meta [
+
+								key: join form key #":"
+
+								either find value newline [
+									value: join newline encode-lines copy value {} {  }
+								] [
+									if all [not empty? value] [
+										insert/dup tail key #" " max 0 1 + 8 - length key
+									]
+									value: join value newline
+								]
+								keep rejoin [key value]
+							]
+						]
+
+						if header/rest [keep header/rest]
+					]
+				]
+
+				text: rejoin [
+					{/***********************************************************************^/}
+					encode-lines text {**} {  }
+					{***********************************************************************/^/}
+				]
+
+				replace text {^/**  ****} {^/****}
+			]
+
+		]
 	]
 
 	run: function [
 		{Convert the files.}
 	] [
 
-		foreach file file/list [update file]
+		foreach file file/list [update ?? file]
 	]
 
 	source-text: context [
 
-		header.text: none
+		eoh:
+		header.text:
+		none
 
 		grammar: context [
 
 			rule: [
 				(header.text: none)
+				eoh:
 				format2012.header
+				eoh:
 				to end
 			]
 
@@ -280,7 +364,7 @@ conversion: context [
 						analysis (analysis)
 					]
 				] [
-					print [{Failed to parse header near:} mold copy/part position 200]
+					log [could-not-parse near (mold copy/part position 200)]
 					none
 				]
 			]
@@ -291,15 +375,20 @@ conversion: context [
 			text [string!]
 		] [
 
-			text
+			compose/only [
+				header (header text)
+				body (eoh)
+			]
 		]
 
 		render: function [
-			{Return text of the source.}
-			source
+			{Render as source text.}
+			source [block!]
 		] [
 
-			source
+			hdr: conversion/header/as/format2012 source/header
+
+			join any [hdr {}] source/body
 		]
 
 		valid?: function [{Return true if the source text can be parsed by the grammar.} text] [
@@ -319,7 +408,9 @@ conversion: context [
 		new-text: source-text/render source
 
 		if not equal? old-text new-text [
-			write join target.folder file new-text
+			target: join target.folder file
+			make-dir/deep first split-path target
+			write target new-text
 			log [updated (file)]
 		]
 	]
