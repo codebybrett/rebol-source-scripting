@@ -161,19 +161,80 @@ conversion: context [
 			]
 		]
 
-		parse-format2012-header: func [
+		parse-format2012-header: function [
 			text
-			/local
-			hdr-rule hdr emit not-eol not-field title rights trademark rest eol eof meta msg
-			field-char field
-			position analysis
 		] [
 
-			field-char: charset [#"A" - #"Z" #"a" - #"z"]
-			field: [some field-char any [#" " some field-char] #":"]
+			grammar: context [
 
-			not-field: parsing-unless [field]
-			not-eol: parsing-unless [newline]
+				hdr-rule: [
+					newline
+					position:
+					[
+						{REBOL [R3] Language Interpreter and Run-time Environment} (title: 'r3)
+						| {REBOL Language Interpreter and Run-time Environment} eol: (title: copy/part position eol)
+					] newline
+					newline
+					any [position: {Copyright 20} to newline eol: newline (emit-rights)]
+					position:
+					opt [{REBOL is a trademark of REBOL Technologies} newline (trademark: 'rebol)]
+					opt [
+						newline
+						position: {Additional code modifications and improvements Copyright 2012 Saphirion AG} eol: newline (emit-rights)
+					]
+					newline
+					position:
+					[{Licensed under the Apache License, Version 2.0} thru {limitations under the License.} (notice: 'apache-2.0)] newline
+					any newline
+					position:
+					opt [
+						50 100 #"*" newline
+						newline
+						some [
+							position:
+							field eof: [
+								#" " to newline any [
+									newline not-field not-eol to newline
+								]
+								| any [1 2 newline 2 20 #" " to newline]
+							] eol: (emit-meta) newline
+							| newline
+						]
+					]
+					position:
+					opt [
+						50 100 #"*" newline
+						newline
+						[
+							copy msg [{WARNING to PROGRAMMERS} thru {before submitting it.}] newline
+							| {NOTE to PROGRAMMERS:
+
+  1. Keep code clear and simple.
+  2. Document unusual code, reasoning, or gotchas.
+  3. Use same style for code, vars, indent(4), comments, etc.
+  4. Keep in mind Linux, OS X, BSD, big/little endian CPUs.
+  5. Test everything, then test it again.} newline
+							(msg: 'standard-programmer-note)
+						]
+					]
+					position:
+					opt [
+						(rest: none)
+						copy rest [
+							50 100 #"*" newline
+							to end
+						]
+					]
+					position:
+				]
+
+				field-char: charset [#"A" - #"Z" #"a" - #"z"]
+				field: [some field-char any [#" " some field-char] #":"]
+
+				not-field: parsing-unless [field]
+				not-eol: parsing-unless [newline]
+
+			]
 
 			emit-meta: func [/local key] [
 				meta: any [meta copy []]
@@ -190,71 +251,11 @@ conversion: context [
 				append rights copy/part position eol
 			]
 
-			hdr-rule: [
-				newline
-				position:
-				[
-					{REBOL [R3] Language Interpreter and Run-time Environment} (title: 'r3)
-					| {REBOL Language Interpreter and Run-time Environment} eol: (title: copy/part position eol)
-				] newline
-				newline
-				any [position: {Copyright 20} to newline eol: newline (emit-rights)]
-				position:
-				opt [{REBOL is a trademark of REBOL Technologies} newline (trademark: 'rebol)]
-				opt [
-					newline
-					position: {Additional code modifications and improvements Copyright 2012 Saphirion AG} eol: newline (emit-rights)
-				]
-				newline
-				position:
-				[{Licensed under the Apache License, Version 2.0} thru {limitations under the License.} (notice: 'apache-2.0)] newline
-				any newline
-				position:
-				opt [
-					50 100 #"*" newline
-					newline
-					some [
-						position:
-						field eof: [
-							#" " to newline any [
-								newline not-field not-eol to newline
-							]
-							| any [1 2 newline 2 20 #" " to newline]
-						] eol: (emit-meta) newline
-						| newline
-					]
-				]
-				position:
-				opt [
-					50 100 #"*" newline
-					newline
-					[
-						copy msg [{WARNING to PROGRAMMERS} thru {before submitting it.}] newline
-						| {NOTE to PROGRAMMERS:
-
-  1. Keep code clear and simple.
-  2. Document unusual code, reasoning, or gotchas.
-  3. Use same style for code, vars, indent(4), comments, etc.
-  4. Keep in mind Linux, OS X, BSD, big/little endian CPUs.
-  5. Test everything, then test it again.} newline
-						(msg: 'standard-programmer-note)
-					]
-				]
-				position:
-				opt [
-					copy rest [
-						50 100 #"*" newline
-						to end
-					]
-				]
-				position:
-			]
-
 			attempt [
 
 				hdr: decode-lines text {**} {  }
 
-				either parse/all hdr hdr-rule [
+				either parse/all hdr grammar/hdr-rule [
 
 					if rights [new-line/all rights true]
 					if meta [new-line/all/skip meta true 2]
