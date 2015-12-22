@@ -270,25 +270,16 @@ limitations under the License.}
 			grammar: context [
 
 				hdr-rule: [
-					newline
-					position:
-					[
-						{REBOL [R3] Language Interpreter and Run-time Environment} (title: 'r3)
-						| {REBOL Language Interpreter and Run-time Environment} eol: (title: copy/part position eol)
-					] newline
-					newline
-					any [position: {Copyright 20} to newline eol: newline (emit-rights)]
-					position:
-					opt [{REBOL is a trademark of REBOL Technologies} newline (trademark: 'rebol)]
-					opt [
+					any [
+						position:
 						newline
-						position: {Additional code modifications and improvements Copyright 2012 Saphirion AG} eol: newline (emit-rights)
+						| {REBOL [R3] Language Interpreter and Run-time Environment} (title: 'r3)
+						| {REBOL Language Interpreter and Run-time Environment} eol: (title: copy/part position eol)
+						| {Copyright 20} to newline eol: newline (emit-rights)
+						| {Additional code modifications and improvements Copyright 2012 Saphirion AG} eol: newline (emit-rights)
+						| {REBOL is a trademark of REBOL Technologies} newline (trademark: 'rebol)
+						| [{Licensed under the Apache License, Version 2.0} thru {limitations under the License.} (notice: 'apache-2.0)] newline
 					]
-					newline
-					position:
-					[{Licensed under the Apache License, Version 2.0} thru {limitations under the License.} (notice: 'apache-2.0)] newline
-					any newline
-					position:
 					opt [
 						50 100 #"*" newline
 						newline
