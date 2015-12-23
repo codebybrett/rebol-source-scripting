@@ -471,6 +471,8 @@ limitations under the License.}
 
 					analysis: new-line/all collect [
 						if title <> 'r3 [keep 'non-standard-title]
+						if all [rights empty? rights] [no-copyright-statement]
+						if all [rights not find rights {Copyright 2012 REBOL Technologies}] [keep 'no-rebol-technologies-copyright]
 						if none? trademark [keep 'no-trademark]
 						if all [not none? msg msg <> 'standard-programmer-note] [keep 'non-standard-message]
 						if none? meta [keep 'missing-meta]
