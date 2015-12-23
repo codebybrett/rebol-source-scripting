@@ -110,12 +110,22 @@ conversion: context [
 								keep compose/only [(file) (hdr/analysis)]
 							]
 							if block? hdr/meta [
-								append meta-fields extract hdr/meta 2
+								foreach [key value] hdr/meta [
+									if not files: select meta-fields key [
+										append meta-fields reduce [:key files: copy []]
+									]
+									append files file
+								]
 							]
 						]
 					]
 				]
-				keep compose/only [meta-fields (unique meta-fields)]
+				for i 2 length meta-fields 2 [
+					if 10 <= length meta-fields/:i [
+						poke meta-fields i length meta-fields/:i
+					]
+				]
+				keep compose/only [meta-fields (meta-fields)]
 
 			] true 2
 		]
