@@ -19,12 +19,23 @@ script-needs [
 
 apropos conversion [
 
+
+	if %temporary.201512-file-headers/ = second split-path conversion/target.folder [
+		path: join conversion/target.folder %src/
+		attempt [
+			foreach file reverse read-below path [
+				delete join path file
+			]
+		]
+	]
+
 	logfile: clean-path join target.folder %source-tool.log.txt
 	attempt [delete logfile]
 
 	headers: file/headers
 
 	save join target.folder %source-tool.headers.r headers
+
 	save join target.folder %source-tool.analysis.r header/analysis headers
 ]
 

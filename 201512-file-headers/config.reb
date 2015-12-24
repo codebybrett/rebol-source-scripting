@@ -1,4 +1,6 @@
-REBOL []
+REBOL [
+	title: {Config}
+]
 
 ren-c-root: clean-path %../../ren-c/
 

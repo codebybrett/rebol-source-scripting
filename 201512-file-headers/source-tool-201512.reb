@@ -93,6 +93,7 @@ conversion: context [
 		analysis: function [
 			{Analyses file headers as returned from file/headers.}
 			header-list [block!]
+			/nofilecount {Do not replace file lists with count of files.}
 		] [
 
 			meta-fields: copy []
@@ -120,9 +121,11 @@ conversion: context [
 						]
 					]
 				]
-				for i 2 length meta-fields 2 [
-					if 10 <= length meta-fields/:i [
-						poke meta-fields i length meta-fields/:i
+				if not nofilecount [
+					for i 2 length meta-fields 2 [
+						if 10 <= length meta-fields/:i [
+							poke meta-fields i length meta-fields/:i
+						]
 					]
 				]
 				keep compose/only [meta-fields (meta-fields)]
@@ -142,6 +145,8 @@ conversion: context [
 				either string? header [
 					text: copy header
 				] [
+
+					section-line: {~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^/}
 					text: rejoin collect [
 						keep newline
 						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
@@ -150,17 +155,16 @@ conversion: context [
 						keep newline
 
 						foreach right any [header/rights []] [
-							keep reduce [right newline]
+;							keep reduce [right newline]
 						]
-						keep rejoin [{Copyright 2012-} now/year { Rebol Open Source Contributors} newline]
-						if header/trademark = 'rebol [
+						keep rejoin [{Copyright 2012-} now/year { Rebol open source contributors. See CREDITS.md
+in the top level directory of this distribution for more information.^/}]
+
+						if true [
+							keep newline
 							keep {REBOL is a trademark of REBOL Technologies^/}
 						]
-
 						keep newline
-						keep {See README.md and CREDITS.md for more information.^/}
-						keep newline
-
 
 						if header/notice = 'apache-2.0 [
 							keep {Licensed under the Apache License, Version 2.0 (the "License");
@@ -179,7 +183,7 @@ limitations under the License.}
 						]
 
 						if header/meta [
-							keep {//=////////////////////////////////////////////////////////////////////////=//^/}
+							keep section-line
 							keep newline
 							foreach [key value] header/meta [
 
@@ -206,7 +210,7 @@ limitations under the License.}
 							not empty? header/meta/notes
 						][
 							keep newline
-							keep {//=////////////////////////////////////////////////////////////////////////=//^/}
+							keep section-line
 							keep newline
 							keep header/meta/notes
 							keep newline
@@ -214,7 +218,7 @@ limitations under the License.}
 
 						if header/msg [
 							keep newline
-							keep {//=////////////////////////////////////////////////////////////////////////=//^/}
+							keep section-line
 							keep newline
 							either header/msg = 'standard-programmer-note [
 								keep {NOTE to PROGRAMMERS:
@@ -238,7 +242,7 @@ limitations under the License.}
 					encode-lines text {//} {  }
 				]
 
-				replace/all text {^///  //=/} {^///=/}
+				;;; replace/all text {^///  //=/} {^///=/}
 			]
 
 			format2012: func [
@@ -376,14 +380,11 @@ limitations under the License.}
 			text
 		] [
 
-			if source-text/valid? text [
-
-				if header.text [
-					result: parse-format2012-header header.text
-				]
-
+			all [
+				source-text/valid? text
+				header.text
 				any [
-					result
+					parse-format2012-header header.text
 					header.text
 				]
 			]
@@ -470,9 +471,11 @@ limitations under the License.}
 				append rights copy/part position eol
 			]
 
-			attempt [
+			do [
 
 				hdr: decode-lines text {**} {  }
+
+				title: rights: trademark: notice: meta: msg: rest: none
 
 				either parse/all hdr grammar/hdr-rule [
 
@@ -526,7 +529,7 @@ limitations under the License.}
 			source [block!]
 		] [
 
-			hdr: conversion/header/as/format2016 source/header
+			hdr: conversion/header/as/format2012 source/header
 
 			join any [hdr {}] source/body
 		]
