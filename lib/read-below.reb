@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/read-below.reb
-; date: 6-Nov-2015/18:59:19+11:00
+; date: 24-Dec-2015/21:21+11:00
 
 Rebol [
 	Title: "read-below"
@@ -78,7 +78,8 @@ read-below: func [
 
 	*foreach: get bind 'foreach 'do
 
-	log: if trace [
+	log: all [
+		trace
 		func [message] [print mold compose/only message]
 	]
 
@@ -86,7 +87,7 @@ read-below: func [
 		fail "read-below expected path to have trailing slash."
 	]
 
-	exclude-files: compose [(any [exclude-files []])]
+	if not exclude [exclude-files: []]
 
 	; Initialise parameters
 	if not foreach [
