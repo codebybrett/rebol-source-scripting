@@ -478,7 +478,7 @@ limitations under the License.}
 				title: rights: trademark: notice: meta: msg: rest: none
 
 				either parse/all hdr grammar/hdr-rule [
-breakpoint
+
 					if rights [new-line/all rights true]
 					if meta [new-line/all/skip meta true 2]
 
