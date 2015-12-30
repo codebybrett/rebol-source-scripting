@@ -234,6 +234,7 @@ if (header/meta false) [
 								keep newline
 							] [
 								keep header/msg
+								keep newline
 							]
 						]
 
