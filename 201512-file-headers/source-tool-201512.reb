@@ -565,6 +565,7 @@ limitations under the License.}
 			replace meta 'Module 'File
 			if not find meta 'File [
 				insert meta compose [File (form second split-path file)]
+				log [add-meta (file) [File]]
 			]
 		]
 
