@@ -35,14 +35,6 @@ conversion: context [
 	logfile: clean-path %source-tool.log.txt
 	log: function [message] [write/append logfile join newline mold new-line/all compose/only message false]
 
-	edit: function [
-		{Modify source}
-		source
-	] [
-
-		source
-	]
-
 	file: context [
 
 		header-of: function [
@@ -152,13 +144,15 @@ conversion: context [
 						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
 						keep reduce [{"Ren-C" branch @ https://github.com/metaeducation/ren-c} newline]
 
+						rights: any [header/rights []]
+						if not empty? rights [
 						keep newline
 
-						foreach right any [header/rights []] [
-;							keep reduce [right newline]
-						]
-						keep rejoin [{Copyright 2012-} now/year { Rebol open source contributors. See CREDITS.md
-in the top level directory of this distribution for more information.^/}]
+							keep reduce [first rights newline]
+							keep rejoin [{Copyright 2012-} now/year { Rebol Open Source Contributors.^/}]
+							keep {  See CREDITS.md in the top level directory of this distribution
+  for more information.^/}
+						] ; Needs to be conditional due to s-unicode.c
 
 						if true [
 							keep newline
@@ -187,7 +181,7 @@ limitations under the License.}
 							keep newline
 							foreach [key value] header/meta [
 
-								if (key <> 'notes TRUE) [
+								if (key <> 'notes) [
 
 									key: join form key #":"
 
@@ -202,15 +196,22 @@ limitations under the License.}
 									keep rejoin [key value]
 								]
 							]
+							keep newline
+							keep section-line
 						]
 
-						if all [ FALSE
+if (header/meta false) [
+	if not find header/meta 'notes [
+		append header/meta [notes {}]
+	]
+	if empty? header/meta/notes [header/meta/notes: {MYNOTES}]
+]
+
+						if notes: all [
 							header/meta
 							find header/meta 'notes
 							not empty? header/meta/notes
 						][
-							keep newline
-							keep section-line
 							keep newline
 							keep header/meta/notes
 							keep newline
@@ -218,8 +219,10 @@ limitations under the License.}
 
 						if header/msg [
 							keep newline
-							keep section-line
-							keep newline
+							if notes [
+								keep section-line
+								keep newline
+							]
 							either header/msg = 'standard-programmer-note [
 								keep {NOTE to PROGRAMMERS:
 
@@ -234,7 +237,9 @@ limitations under the License.}
 							]
 						]
 
-						if header/rest [keep header/rest]
+						if header/rest [
+							keep header/rest
+						]
 					]
 				]
 
@@ -255,6 +260,8 @@ limitations under the License.}
 				either string? header [
 					text: copy header
 				] [
+
+					section-line: {************************************************************************^/}
 					text: rejoin collect [
 						keep newline
 						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
@@ -266,7 +273,6 @@ limitations under the License.}
 						if header/trademark = 'rebol [
 							keep {REBOL is a trademark of REBOL Technologies^/}
 						]
-
 						keep newline
 
 						if header/notice = 'apache-2.0 [
@@ -286,27 +292,27 @@ limitations under the License.}
 						]
 
 						if header/meta [
-							keep {************************************************************************^/}
+							keep section-line
 							keep newline
 							foreach [key value] header/meta [
 
 								key: join form key #":"
 
 								either find value newline [
-									value: join newline encode-lines copy value {} {  }
+									value: join newline encode-lines value {} {  }
 								] [
-									if all [not empty? value] [
-										insert/dup tail key #" " 1 + max 0 8 - length key
-									]
+;;									if empty? value [value: none]
+									if all [value not empty? value] [insert/dup tail key #" " 1 + max 0 8 - length key]
 									value: join value newline
 								]
+
 								keep rejoin [key value]
 							]
 						]
 
 						if header/msg [
 							keep newline
-							keep {************************************************************************^/}
+							keep section-line
 							keep newline
 							either header/msg = 'standard-programmer-note [
 								keep {NOTE to PROGRAMMERS:
@@ -529,7 +535,7 @@ limitations under the License.}
 			source [block!]
 		] [
 
-			hdr: conversion/header/as/format2012 source/header
+			hdr: conversion/header/as/format2016 source/header
 
 			join any [hdr {}] source/body
 		]
@@ -547,7 +553,20 @@ limitations under the License.}
 
 		old-text: read/string join source.folder file
 		source: source-text/load old-text
-		edit source
+
+		header: source/header
+		if all [
+			block? header
+			block? meta: header/meta
+		] [
+			replace meta 'Title 'Summary
+
+			replace meta 'Module 'File
+			if not find meta 'File [
+				insert meta compose [File (form second split-path file)]
+			]
+		]
+
 		new-text: source-text/render source
 
 		if not equal? old-text new-text [
