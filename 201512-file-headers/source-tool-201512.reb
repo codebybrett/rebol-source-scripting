@@ -138,7 +138,7 @@ conversion: context [
 					text: copy header
 				] [
 
-					section-line: {~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^/}
+					section-line: {//=////////////////////////////////////////////////////////////////////////=//^/}
 					text: rejoin collect [
 						keep newline
 						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
@@ -245,10 +245,10 @@ if (header/meta false) [
 				]
 
 				text: rejoin [
-					encode-lines text {//} {  }
+					encode-lines text {//} { }
 				]
 
-				;;; replace/all text {^///  //=/} {^///=/}
+				replace/all text {^/// //=/} {^///=/}
 			]
 
 			format2012: func [
@@ -552,21 +552,50 @@ limitations under the License.}
 		file [file!]
 	] [
 
+		move-key-to-notes: func [
+			key [word!]
+		][
+			if position: find meta key [
+				if not find meta 'Notes [append meta compose [Notes (none)]]
+				if none? meta/notes [meta/notes: copy {}]
+				value: meta/:key
+				if key = 'See [insert value rejoin [mold key {: }]]
+				if not empty? meta/notes [append value {^/^/}]
+				insert meta/notes value
+				remove/part position 2
+				log [move-to-notes (file) (key)]
+			]
+		]
+
 		old-text: read/string join source.folder file
 		source: source-text/load old-text
 
 		header: source/header
+
 		if all [
 			block? header
 			block? meta: header/meta
 		] [
-			replace meta 'Title 'Summary
 
+			replace meta 'Title 'Summary
 			replace meta 'Module 'File
+			replace meta 'Note 'Caution
+
 			if not find meta 'File [
 				insert meta compose [File (form second split-path file)]
-				log [add-meta (file) [File]]
+				log [add-meta (file) File]
 			]
+			meta/file: mold to file! meta/file
+
+			move-key-to-notes 'Compile-note
+			move-key-to-notes 'Flags
+			move-key-to-notes 'Usage
+			move-key-to-notes 'Design-comments
+			move-key-to-notes 'Warning
+			move-key-to-notes 'Description
+			move-key-to-notes 'See
+			move-key-to-notes 'Purpose
+			move-key-to-notes 'Caution
 		]
 
 		new-text: source-text/render source
