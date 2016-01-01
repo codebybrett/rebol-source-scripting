@@ -595,6 +595,7 @@ limitations under the License.}
 			move-key-to-notes 'Description
 			move-key-to-notes 'See
 			move-key-to-notes 'Purpose
+			move-key-to-notes 'Special-note
 			move-key-to-notes 'Caution
 		]
 
