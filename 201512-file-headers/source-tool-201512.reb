@@ -1,7 +1,7 @@
 REBOL [
 	Title: "Rebol C Source File Header Conversion"
 	Rights: {
-		Copyright 2015 Brett Handley
+		Copyright 2016 Brett Handley
 	}
 	License: {
 		Licensed under the Apache License, Version 2.0
@@ -11,7 +11,7 @@ REBOL [
 	Purpose: {Process Rebol C source to change the source file headers.}
 	Comment: {
 		Works with Rebol 2 and Rebol 3 (rebolsource).
-		At the time of writing Ren/C is often changing so this script may or may not work with it.
+		At the time of writing Ren/C is frequently changing so this script may or may not work with it.
 	}
 ]
 
