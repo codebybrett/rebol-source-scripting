@@ -35,6 +35,9 @@ conversion: context [
 	logfile: clean-path %source-tool.log.txt
 	log: function [message] [write/append logfile join newline mold new-line/all compose/only message false]
 
+	issuesfile: clean-path %source-tool.issues.txt
+	issue: function [message] [write/append issuesfile join newline mold new-line/all compose/only message false]
+
 	file: context [
 
 		header-of: function [
@@ -129,8 +132,11 @@ conversion: context [
 
 			format2016: func [
 				{Return header text/}
-				header [block! string! none!]
+				source [block! string! none!]
+				/local header
 			] [
+
+				header: source/header
 
 				if none? header [return copy {}]
 
@@ -141,24 +147,31 @@ conversion: context [
 					section-line: {//=////////////////////////////////////////////////////////////////////////=//^/}
 					text: rejoin collect [
 						keep newline
-						keep reduce [{REBOL [R3] Language Interpreter and Run-time Environment} newline]
+						keep reduce [{Rebol 3 Language Interpreter and Run-time Environment} newline]
 						keep reduce [{"Ren-C" branch @ https://github.com/metaeducation/ren-c} newline]
 
 						rights: any [header/rights []]
 						if not empty? rights [
-						keep newline
+							keep newline
 
 							keep reduce [first rights newline]
 							keep rejoin [{Copyright 2012-} now/year { Rebol Open Source Contributors.^/}]
-							keep {  See CREDITS.md in the top level directory of this distribution
-  for more information.^/}
+
+							if 1 < length rights [
+								issue [copyright-notice-removed (source/file) (copy next rights)]
+							]
+
 						] ; Needs to be conditional due to s-unicode.c
 
 						if true [
-							keep newline
 							keep {REBOL is a trademark of REBOL Technologies^/}
 						]
 						keep newline
+
+						if not empty? rights [
+							keep {See README.md and CREDITS.md for more information.^/}
+							keep newline
+						]
 
 						if header/notice = 'apache-2.0 [
 							keep {Licensed under the Apache License, Version 2.0 (the "License");
@@ -419,12 +432,7 @@ limitations under the License.}
 						newline
 						some [
 							position:
-							field eof: [
-								#" " to newline any [
-									newline not-field not-eol to newline
-								]
-								| any [1 2 newline 2 20 #" " to newline]
-							] eol: (emit-meta) newline
+							field
 							| newline
 						]
 					]
@@ -455,10 +463,19 @@ limitations under the License.}
 					position:
 				]
 
-				field-char: charset [#"A" - #"Z" #"a" - #"z"]
-				field: [some field-char any [#" " some field-char] #":"]
+				field: [
+					field-name eof: [
+						#" " to newline any [
+							newline not-field-name not-eol to newline
+						]
+						| any [1 2 newline 2 20 #" " to newline]
+					] eol: (emit-meta) newline
+				]
 
-				not-field: parsing-unless [field]
+				field-char: charset [#"A" - #"Z" #"a" - #"z"]
+				field-name: [some field-char any [#" " some field-char] #":"]
+
+				not-field-name: parsing-unless [field-name]
 				not-eol: parsing-unless [newline]
 
 			]
@@ -536,7 +553,7 @@ limitations under the License.}
 			source [block!]
 		] [
 
-			hdr: conversion/header/as/format2016 source/header
+			hdr: conversion/header/as/format2016 source
 
 			join any [hdr {}] source/body
 		]
@@ -568,7 +585,10 @@ limitations under the License.}
 		]
 
 		old-text: read/string join source.folder file
-		source: source-text/load old-text
+		source: compose [
+			file (file)
+			(source-text/load old-text)
+		]
 
 		header: source/header
 
@@ -576,6 +596,16 @@ limitations under the License.}
 			block? header
 			block? meta: header/meta
 		] [
+
+			if find [
+				%src/core/p-signal.c
+				%src/os/linux/dev-signal.c
+			] source/file [
+				; @zsx (Atronix) created this file.
+				new-rights: [{Copyright 2014 Atronix Engineering, Inc.}]
+				issue [copyright-notice-removed (source/file) (exclude source/header/rights new-rights)]
+				source/header/rights: new-rights
+			]
 
 			replace meta 'Title 'Summary
 			replace meta 'Module 'File

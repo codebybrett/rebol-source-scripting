@@ -32,6 +32,9 @@ apropos conversion [
 	logfile: clean-path join target.folder %source-tool.log.txt
 	attempt [delete logfile]
 
+	issuesfile: clean-path join target.folder %source-tool.issues.txt
+	attempt [delete issuesfile]
+
 	headers: file/headers
 
 	save join target.folder %source-tool.headers.r headers
