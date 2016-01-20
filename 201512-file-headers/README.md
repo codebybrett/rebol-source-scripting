@@ -42,34 +42,12 @@ Conversion Notes
 Add a generic copyright notice to every header without checking if any changes
 covered by it exist. The idea is to rely upon GitHub commits to identify contributors.
 
-A problem is that a company's copyright may not be adequately identified by the individual's username
+* A problem is that a company's copyright may not be adequately identified by the individual's username
 and some people may have individual copyright or have assigned their copyright to a company.
 Perhaps a simple solution to this would be for the copyright owner to be listed first on one line then
 on a second line the contributor which in addition to the github username can include a
 comment that identifies the contribution in some way or links to further information.
-As an example (note @earl appears twice):
-
-    Andreas Bolka
-    @earl ; Keeper of rebol keys.
-    
-    Atronix Engineering, Inc ; [Zoe, built with Rebol.](http://www.atronixengineering.com/zoe/)
-    @zsx Shixin Zeng
-
-    Brett Handley
-    @codebybrett ; Long time Rebol user now contributing to Rebol using Rebol.
-
-    Brian Dickens
-    @hostilefork ; ["Not actually *hostile* (just a bit irate.)"](http://www.hostilefork.com/)
-
-    [Rebol Technologies](rebol.com) ; Released source 12/12/2012.
-    @carls Carl Sassenrath ; Creator of REBOL.
-
-    Saphirion AG ; [See our Saphir Rebol work](http://development.saphirion.com/rebol/)
-    @earl Andreas Bolka
-    @ladislav Ladislav Mecir
-    ...
-    
-    etc...
+* See the [Credits file](https://github.com/codebybrett/temporary.201512-file-headers/CREDITS.md) for an example. Note in the example that @earl appears twice.
 
 Remove copyright notices for Rebol Technologies from the following files because
 it appears that Atronix Engineering originally created the file:
