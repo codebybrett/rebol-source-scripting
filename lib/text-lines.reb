@@ -1,5 +1,5 @@
 ; file: https://raw.githubusercontent.com/codebybrett/reb/master/text-lines.reb
-; date: 22-Dec-2015/18:00+11:00
+; date: 21-Jan-2016/11:27:11+11:00
 
 REBOL [
 	Title: "Text Lines"
@@ -20,18 +20,15 @@ REBOL [
 decode-lines: function [
 	{Decode text previously encoded using a line prefix e.g. comments (modifies).}
 	text [string!]
-	line-prefix [string!] {Usually "**" or "//".}
-	indent [string!] {Usually "  ".}
+	line-prefix [string! block!] {Usually "**" or "//". Matched using parse.}
+	indent [string! block!] {Usually "  ". Matched using parse.}
 ] [
-	if not parse/all text [any [line-prefix thru newline]] [
-		fail [{decode-lines expects each line to begin with} (mold line-prefix) { and finish with a newline.}]
-	]
-	insert text newline
-	replace/all text join newline line-prefix newline
-	if not empty? indent [
-		replace/all text join newline indent newline
-	]
-	remove text
+    pattern: compose/only [(line-prefix)]
+    if not empty? indent [append pattern compose/only [opt (indent)]]
+    line: [pos: pattern rest: (rest: remove/part pos rest) :rest thru newline]
+    if not parse/all text [any line] [
+		fail [{Expected line} (line-of text pos) {to begin with} (mold line-prefix) {and end with newline.}]
+    ]
 	remove back tail text
 	text
 ]
