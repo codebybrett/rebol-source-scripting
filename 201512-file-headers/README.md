@@ -47,7 +47,7 @@ and some people may have individual copyright or have assigned their copyright t
 Perhaps a simple solution to this would be for the copyright owner to be listed first on one line then
 on a second line the contributor which in addition to the github username can include a
 comment that identifies the contribution in some way or links to further information.
-* See the [Credits file](https://github.com/codebybrett/temporary.201512-file-headers/blob/master/CREDITS.md) for an example. Note in the example that @earl appears twice.
+* A temporary wiki based [Credits file](https://github.com/codebybrett/temporary.201512-file-headers/wiki/Draft-CREDITS) has been set up for an example. Note in the example that @earl appears twice.
 
 Remove copyright notices for Rebol Technologies from the following files because
 it appears that Atronix Engineering originally created the file:
