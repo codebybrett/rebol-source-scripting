@@ -35,13 +35,32 @@ apropos conversion [
 	issuesfile: clean-path join target.folder %source-tool.issues.txt
 	attempt [delete issuesfile]
 
+	newmetafile: clean-path join target.folder %source-tool.newmeta.txt
+	attempt [delete newmetafile]
+
 	headers: file/headers
 
 	save join target.folder %source-tool.headers.r headers
 
 	save join target.folder %source-tool.analysis.r header/analysis headers
+
 ]
 
 conversion/run
+
+apropos conversion [
+
+
+	; Post run Reports
+
+	meta: to-block read/string newmetafile
+	author-listing: collect [
+		keep/only [file author]
+		for-each x meta [keep x/author keep x/file]
+	]
+	sort/skip next author-listing 2
+	new-line/all/skip next author-listing true 2		
+	save join target.folder %source-tool.authors.r author-listing
+]
 
 HALT

@@ -38,6 +38,9 @@ conversion: context [
 	issuesfile: clean-path %source-tool.issues.txt
 	issue: function [message] [write/append issuesfile join newline mold new-line/all compose/only message false]
 
+	newmetafile: clean-path %source-tool.newmeta.txt
+	newmeta: function [message] [write/append newmetafile join newline mold message]
+
 	file: context [
 
 		header-of: function [
@@ -136,6 +139,8 @@ conversion: context [
 				/local header
 			] [
 
+				digit: charset {0123456789}
+
 				header: source/header
 
 				if none? header [return copy {}]
@@ -154,8 +159,19 @@ conversion: context [
 						if not empty? rights [
 							keep newline
 
-							keep reduce [first rights newline]
-							keep rejoin [{Copyright 2012-} now/year { Rebol Open Source Contributors.^/}]
+							creator-copyright: first rights
+							contributor-date: none
+							if not parse/all creator-copyright [
+								{Copyright } copy contributor-date 4 digit { } to end
+							][
+								fail {Could not get creator-copyright date.}
+							]
+							if contributor-date <> {2012} [
+								log [contributor-date (source/file) (contributor-date)]
+							]
+
+							keep reduce [creator-copyright newline]
+							keep rejoin [{Copyright } contributor-date {-} now/year { Rebol Open Source Contributors^/}]
 
 							if 1 < length rights [
 								issue [copyright-notice-removed (source/file) (copy next rights)]
@@ -192,33 +208,29 @@ limitations under the License.}
 						if header/meta [
 							keep section-line
 							keep newline
-							foreach [key value] header/meta [
 
-								if (key <> 'notes) [
+							meta: rejoin collect [
+								foreach [key value] header/meta [
 
-									key: join form key #":"
+									if (not find [Notes Author] key) [
 
-									either find value newline [
-										value: join newline encode-lines value {} {  }
-									] [
-										insert/dup tail key #" " 1 + max 0 10 - length key
-										if empty? value [value: none]
-										value: join value newline
+										key: join form key #":"
+
+										either find value newline [
+											value: join newline encode-lines value {} {  }
+										] [
+											insert/dup tail key #" " 1 + max 0 10 - length key
+											if empty? value [value: none]
+											value: join value newline
+										]
+
+										keep rejoin [key value]
 									]
-
-									keep rejoin [key value]
 								]
 							]
-							keep newline
+							keep encode-lines meta {} { }
 							keep section-line
 						]
-
-if (header/meta false) [
-	if not find header/meta 'notes [
-		append header/meta [notes {}]
-	]
-	if empty? header/meta/notes [header/meta/notes: {MYNOTES}]
-]
 
 						if notes: all [
 							header/meta
@@ -430,11 +442,7 @@ limitations under the License.}
 					opt [
 						50 100 #"*" newline
 						newline
-						some [
-							position:
-							field
-							| newline
-						]
+                        fields
 					]
 					position:
 					opt [
@@ -463,7 +471,15 @@ limitations under the License.}
 					position:
 				]
 
-				field: [
+                fields: [
+                    some [
+                        position:
+                        field
+                        | newline
+                    ]
+                ]
+                        
+                field: [
 					field-name eof: [
 						#" " to newline any [
 							newline not-field-name not-eol to newline
@@ -627,6 +643,9 @@ limitations under the License.}
 			move-key-to-notes 'Purpose
 			move-key-to-notes 'Special-note
 			move-key-to-notes 'Caution
+
+			remove-each [key value] fields: copy meta [key = 'notes]
+			newmeta new-line/all/skip compose [source (file) (fields)] true 2
 		]
 
 		new-text: source-text/render source
