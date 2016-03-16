@@ -56,7 +56,7 @@ apropos conversion [
 	meta: to-block read/string newmetafile
 	author-listing: collect [
 		keep/only [file author]
-		for-each x meta [keep x/author keep x/file]
+		for-each x meta [keep attempt [x/author] keep x/file]
 	]
 	sort/skip next author-listing 2
 	new-line/all/skip next author-listing true 2		
