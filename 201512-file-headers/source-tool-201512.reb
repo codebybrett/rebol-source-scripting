@@ -100,7 +100,11 @@ conversion: context [
 
 				foreach [file hdr] header-list [
 					either string? hdr [
-						keep compose [(file) not-parsed]
+                        either find/match hdr {//} [
+    						keep compose [(file) not-parsed-2016]
+                        ][
+    						keep compose [(file) not-parsed]
+                        ]
 					] [
 						either none? hdr [
 							keep compose/only [(file) no-header]
@@ -134,9 +138,30 @@ conversion: context [
 		as: context [
 
 			format2016: func [
-				{Return header text/}
+				{Return header text}
 				source [block! string! none!]
-				/local header
+				/local old-text new-text
+                p1 p2
+			] [
+
+                old-text: format2016-firstdraft source
+                
+                either parse/all new-text: copy old-text [
+                    p1:
+                    {//^/}
+                    {// Rebol 3 Language Interpreter and Run-time Environment} newline
+                    {// "Ren-C" branch @ https://github.com/metaeducation/ren-c} newline
+                    {//^/}
+                    p2: (remove/part p1 p2) :p1
+                    
+                    to end
+                ][new-text][old-text]
+            ]
+
+			format2016-firstdraft: func [
+				{Return header text in first draft format}
+				source [block! string! none!]
+				/local header text
 			] [
 
 				digit: charset {0123456789}
@@ -380,6 +405,7 @@ limitations under the License.}
 
 		eoh:
 		header.text:
+        header.style:
 		none
 
 		grammar: context [
@@ -387,7 +413,7 @@ limitations under the License.}
 			rule: [
 				(header.text: none)
 				eoh:
-				format2012.header
+				[format2012.header | format2016.header]
 				eoh:
 				to end
 			]
@@ -400,6 +426,17 @@ limitations under the License.}
 					| {**} wsp thru newline ; Text line
 				]
 				50 100 #"*" {/} newline
+                (header.style: 'format2012)
+			]
+
+			format2016.header: [
+				{//} newline
+				copy header.text some [
+					{//=} thru newline ; Section line
+					| {//} wsp thru newline ; Text line
+					| {//} newline ; Blank line
+				]
+                (header.style: 'format2016)
 			]
 
 			wsp: compose [some (charset { ^-})]
@@ -416,7 +453,10 @@ limitations under the License.}
 				source-text/valid? text
 				header.text
 				any [
-					parse-format2012-header header.text
+					all [
+                        header.style = 'format2012
+                        parse-format2012-header header.text
+                    ]
 					header.text
 				]
 			]
@@ -569,7 +609,7 @@ limitations under the License.}
 			source [block!]
 		] [
 
-			hdr: conversion/header/as/format2016 source
+			hdr: conversion/header/as/format2016-firstdraft source
 
 			join any [hdr {}] source/body
 		]
@@ -601,6 +641,7 @@ limitations under the License.}
 		]
 
 		old-text: read/string join source.folder file
+        
 		source: compose [
 			file (file)
 			(source-text/load old-text)
