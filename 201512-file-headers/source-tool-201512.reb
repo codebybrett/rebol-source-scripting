@@ -140,22 +140,35 @@ conversion: context [
 			format2016: func [
 				{Return header text}
 				source [block! string! none!]
-				/local old-text new-text
+				/local old-text new-text legal project
                 p1 p2
 			] [
+            
+                project: {//  Project:   Rebol 3 Language Interpreter and Run-time Environment
+//  Homepage:  "Ren-C" branch @ https://github.com/metaeducation/ren-c}
 
-                old-text: format2016-firstdraft source
+                old-text: format2016-firstdraft copy source
                 
-                either parse/all new-text: copy old-text [
+                either parse/all new-text: old-text [
+                
                     p1:
-                    {//^/}
+                    opt {//^/}
                     {// Rebol 3 Language Interpreter and Run-time Environment} newline
                     {// "Ren-C" branch @ https://github.com/metaeducation/ren-c} newline
                     {//^/}
                     p2: (remove/part p1 p2) :p1
                     
+                    p1: thru {//=} 5 100 #"/" thru newline
+                    p2: (legal: copy/part p1 p2 remove/part p1 p2 insert p1 project) :p1
+                    
+                    thru {//=} 5 100 #"/" thru newline
+                    p1: (insert p1 join {//^/} legal) :p1
+                    
                     to end
-                ][new-text][old-text]
+                ][new-text][
+                    log [not-final-format: (source/file)]
+                    old-text
+                ]
             ]
 
 			format2016-firstdraft: func [
@@ -294,9 +307,11 @@ limitations under the License.}
 					]
 				]
 
-				text: rejoin [
-					encode-lines text {//} { }
-				]
+				if not find/match text {//} [
+                    text: rejoin [
+					    encode-lines text {//} { }
+				    ]
+                ]
 
 				replace/all text {^/// //=/} {^///=/}
 			]
@@ -430,7 +445,7 @@ limitations under the License.}
 			]
 
 			format2016.header: [
-				{//} newline
+				opt [{//} newline]
 				copy header.text some [
 					{//=} thru newline ; Section line
 					| {//} wsp thru newline ; Text line
@@ -609,7 +624,7 @@ limitations under the License.}
 			source [block!]
 		] [
 
-			hdr: conversion/header/as/format2016-firstdraft source
+			hdr: conversion/header/as/format2016 source
 
 			join any [hdr {}] source/body
 		]
