@@ -41,8 +41,10 @@ conversion: context [
 	newmetafile: clean-path %source-tool.newmeta.txt
 	newmeta: function [message] [write/append newmetafile join newline mold message]
     
-    new-meta-order: [Project Homepage File Summary Section]
+    new-meta-order: [File Summary Section Project Homepage]
     new-meta-keys: none
+    
+    project-string: {Rebol 3 Interpreter and Run-time (Ren-C branch)}
 
 	file: context [
 
@@ -155,8 +157,10 @@ conversion: context [
                 ; - Update the first draft format to newer format
                 ; - taking into account that Hostilefork has some added some manually formatted files.
                 
-                project: {//  Project: Rebol 3 Interpreter and Run-time ("Ren-C" branch)
-//  Homepage: https://github.com/metaeducation/ren-c/^/}
+                project: rejoin [
+                    {//  Project: } project-string newline
+                    {//  Homepage: https://github.com/metaeducation/ren-c/^/}
+                ]
                 
                 thru-divider: [thru {//=} 5 100 #"/" thru newline]
                 
@@ -203,11 +207,12 @@ conversion: context [
                 decode-lines meta {//} {  }
                 meta: keyed-strings/decode meta
                 foreach [key value] meta [
-                    if not find [File Section] key [meta/(key): mold value]
+                    if not find [File Homepage Section] key [meta/(key): mold value]
                 ]
                 append new-meta-keys exclude extract meta 2 new-meta-keys ; What keys do we end up with..
                 meta: meta-sort meta
-                meta: keyed-strings/encode/aligned meta 11 {  }
+                ;; meta: keyed-strings/encode/aligned meta 11 {  }
+                meta: keyed-strings/encode meta
                 encode-lines meta {//} {  }
                 change/part p1 join {//^/} meta p2
                                 
@@ -702,8 +707,8 @@ limitations under the License.}
 			move-key-to-notes 'Special-note
 			move-key-to-notes 'Caution
             
-            insert meta [
-                Project {Rebol 3 Interpreter and Run-time ("Ren-C" branch)} 
+            insert meta compose [
+                Project (project-string) 
                 Homepage https://github.com/metaeducation/ren-c/
             ]
 
