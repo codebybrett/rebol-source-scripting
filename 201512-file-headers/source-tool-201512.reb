@@ -40,6 +40,9 @@ conversion: context [
 
 	newmetafile: clean-path %source-tool.newmeta.txt
 	newmeta: function [message] [write/append newmetafile join newline mold message]
+    
+    new-meta-order: [Project Homepage File Summary Section]
+    new-meta-keys: none
 
 	file: context [
 
@@ -61,12 +64,14 @@ conversion: context [
 
 			files: list
 			result: make block! 2 * length files
+            
+            conversion/new-meta-keys: copy []
 
 			foreach file files [
 				insert position: tail result reduce [file header-of file]
 				new-line position true
 			]
-
+            
 			result
 		]
 
@@ -141,15 +146,21 @@ conversion: context [
 				{Return header text}
 				source [block! string! none!]
 				/local old-text new-text legal project
-                p1 p2
+                p1 p2 thru-divider
 			] [
             
-                project: {//  Project:   Rebol 3 Language Interpreter and Run-time Environment
-//  Homepage:  "Ren-C" branch @ https://github.com/metaeducation/ren-c}
-
                 old-text: format2016-firstdraft copy source
                 
-                either parse/all new-text: old-text [
+                ; Apply new ammendment:
+                ; - Update the first draft format to newer format
+                ; - taking into account that Hostilefork has some added some manually formatted files.
+                
+                project: {//  Project: Rebol 3 Interpreter and Run-time ("Ren-C" branch)
+//  Homepage: https://github.com/metaeducation/ren-c/^/}
+                
+                thru-divider: [thru {//=} 5 100 #"/" thru newline]
+                
+                if not parse/all new-text: old-text [
                 
                     p1:
                     opt {//^/}
@@ -158,23 +169,55 @@ conversion: context [
                     {//^/}
                     p2: (remove/part p1 p2) :p1
                     
-                    p1: thru {//=} 5 100 #"/" thru newline
-                    p2: (legal: copy/part p1 p2 remove/part p1 p2 insert p1 project) :p1
+                    p1: thru-divider
+                    p2: (legal: copy/part p1 p2)
                     
-                    thru {//=} 5 100 #"/" thru newline
+                    any {//^/}
+                    p2: (p1: remove/part p1 p2) :p1
+                    
+                    (
+                        if not find/match p1 {//  Project:} [
+                            ; For files that did not start as format2012.
+                            insert p1 project
+                        ]
+                        insert p1 {//^/} ; First line.
+                    )
+
+                    thru-divider
                     p1: (insert p1 join {//^/} legal) :p1
                     
                     to end
-                ][new-text][
+                ][
                     log [not-final-format: (source/file)]
-                    old-text
+                    RETURN old-text
                 ]
+
+                ; Header metadata is now consistent, reload and reformat as required.
+                if not parse/all new-text [
+                    p1: to {^///=} skip p2: to end
+                ][
+                    fail {Divider missing.}
+                ]
+                
+                meta: copy/part p1 p2
+                decode-lines meta {//} {  }
+                meta: keyed-strings/decode meta
+                foreach [key value] meta [
+                    if not find [File Section] key [meta/(key): mold value]
+                ]
+                append new-meta-keys exclude extract meta 2 new-meta-keys ; What keys do we end up with..
+                meta: meta-sort meta
+                meta: keyed-strings/encode/aligned meta 11 {  }
+                encode-lines meta {//} {  }
+                change/part p1 join {//^/} meta p2
+                                
+                new-text
             ]
 
 			format2016-firstdraft: func [
 				{Return header text in first draft format}
-				source [block! string! none!]
-				/local header text
+				source [block! string!]
+				/local header text key-string
 			] [
 
 				digit: charset {0123456789}
@@ -188,7 +231,9 @@ conversion: context [
 				] [
 
 					section-line: {//=////////////////////////////////////////////////////////////////////////=//^/}
+                    
 					text: rejoin collect [
+                    
 						keep newline
 						keep reduce [{Rebol 3 Language Interpreter and Run-time Environment} newline]
 						keep reduce [{"Ren-C" branch @ https://github.com/metaeducation/ren-c} newline]
@@ -247,25 +292,10 @@ limitations under the License.}
 							keep section-line
 							keep newline
 
-							meta: rejoin collect [
-								foreach [key value] header/meta [
-
-									if (not find [Notes Author] key) [
-
-										key: join form key #":"
-
-										either find value newline [
-											value: join newline encode-lines value {} {  }
-										] [
-											insert/dup tail key #" " 1 + max 0 10 - length key
-											if empty? value [value: none]
-											value: join value newline
-										]
-
-										keep rejoin [key value]
-									]
-								]
-							]
+                            meta: copy header/meta
+                            remove-each [key value] meta [find [Notes Author] key]
+;;							meta: keyed-strings/encode/aligned meta 10 {  }
+							meta: keyed-strings/encode meta
 							keep encode-lines meta {} { }
 							keep section-line
 						]
@@ -360,20 +390,7 @@ limitations under the License.}
 						if header/meta [
 							keep section-line
 							keep newline
-							foreach [key value] header/meta [
-
-								key: join form key #":"
-
-								either find value newline [
-									value: join newline encode-lines value {} {  }
-								] [
-;;									if empty? value [value: none]
-									if all [value not empty? value] [insert/dup tail key #" " 1 + max 0 8 - length key]
-									value: join value newline
-								]
-
-								keep rejoin [key value]
-							]
+                            keep keyed-strings/encode header/meta 10 {  }
 						]
 
 						if header/msg [
@@ -407,6 +424,25 @@ limitations under the License.}
 				replace/all text {^/**  ****} {^/****}
 			]
 		]
+        
+        meta-sort: function [
+            {Sort the meta data in the header.}
+            meta
+        ][
+        
+            keys: append copy new-meta-order exclude extract meta 2 new-meta-order
+            ; Additional keys come last.
+            
+            new-line/all/skip collect [
+            
+                foreach key keys [
+                    if pos: find meta key [
+                        keep compose/only [(:key) (:pos/2)]
+                    ]
+                ]
+            ] true 2
+        ]
+        
 	]
 
 	run: function [
@@ -497,7 +533,7 @@ limitations under the License.}
 					opt [
 						50 100 #"*" newline
 						newline
-                        fields
+                        keyed-strings/parser/grammar/fields (meta: keyed-strings/parser/meta)
 					]
 					position:
 					opt [
@@ -524,40 +560,6 @@ limitations under the License.}
 						]
 					]
 					position:
-				]
-
-                fields: [
-                    some [
-                        position:
-                        field
-                        | newline
-                    ]
-                ]
-                        
-                field: [
-					field-name eof: [
-						#" " to newline any [
-							newline not-field-name not-eol to newline
-						]
-						| any [1 2 newline 2 20 #" " to newline]
-					] eol: (emit-meta) newline
-				]
-
-				field-char: charset [#"A" - #"Z" #"a" - #"z"]
-				field-name: [some field-char any [#" " some field-char] #":"]
-
-				not-field-name: parsing-unless [field-name]
-				not-eol: parsing-unless [newline]
-
-			]
-
-			emit-meta: func [/local key] [
-				meta: any [meta copy []]
-				key: replace/all copy/part position eof #" " #"-"
-				remove back tail key
-				append meta reduce [
-					to word! key
-					trim/auto copy/part eof eol
 				]
 			]
 
@@ -699,6 +701,11 @@ limitations under the License.}
 			move-key-to-notes 'Purpose
 			move-key-to-notes 'Special-note
 			move-key-to-notes 'Caution
+            
+            insert meta [
+                Project {Rebol 3 Interpreter and Run-time ("Ren-C" branch)} 
+                Homepage https://github.com/metaeducation/ren-c/^/
+            ]
 
 			remove-each [key value] fields: copy meta [key = 'notes]
 			newmeta new-line/all/skip compose [source (file) (fields)] true 2
@@ -713,4 +720,99 @@ limitations under the License.}
 			log [updated (file)]
 		]
 	]
+]
+
+keyed-strings: context [
+
+    decode: func [
+        {Decode the keyed-strings format.}
+        text [string!]
+    ][
+        if parse/all text parser/grammar/fields [
+            parser/meta
+        ]
+    ]
+
+    encode: func [
+        pairs [block!] {Block of key value pairs where value must be a string.}
+        /aligned
+        key-width [integer!] {Align single line values by using this width for the key column.}
+        indent [integer! string!] {Indent used when value is multiple lines. Default is two spaces.}
+        /local key-string pad
+    ][
+
+        if not aligned [ident: {  }]
+        if integer? indent [indent: head insert/dup copy {} { }]
+
+        pad: 0
+        if aligned [
+            pad: func [][max 0 key-width - length key-string]
+        ]
+
+        rejoin collect [
+        
+            keep {} ; Ensure we return a string result.
+        
+            foreach [key value] pairs [
+
+                value: form :value
+
+                key-string: join form key #":"
+
+                either find value newline [
+                    value: join newline encode-lines value {} indent
+                ] [
+                    insert/dup tail key-string #" " 1 + pad
+                    if empty? value [value: none]
+                    value: join value newline
+                ]
+
+                keep rejoin [key-string value]
+            ]
+        ]
+    ]
+    
+    parser: context [
+    
+        meta: none
+        position: eof: eol:
+        none
+    
+        emit-meta: func [/local key] [
+            meta: any [meta copy []]
+            key: replace/all copy/part position eof #" " #"-"
+            remove back tail key
+            append meta reduce [
+                to word! key
+                trim/auto copy/part eof eol
+            ]
+        ]
+
+        grammar: context [
+
+            fields: [
+                (meta: none)
+                some [
+                    position:
+                    field
+                    | newline
+                ]
+            ]
+                    
+            field: [
+                field-name eof: [
+                    #" " to newline any [
+                        newline not-field-name not-eol to newline
+                    ]
+                    | any [1 2 newline 2 20 #" " to newline]
+                ] eol: (emit-meta) newline
+            ]
+
+            field-char: charset [#"A" - #"Z" #"a" - #"z"]
+            field-name: [some field-char any [#" " some field-char] #":"]
+
+            not-field-name: parsing-unless [field-name]
+            not-eol: parsing-unless [newline]
+        ]
+    ]
 ]
