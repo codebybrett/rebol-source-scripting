@@ -704,7 +704,7 @@ limitations under the License.}
             
             insert meta [
                 Project {Rebol 3 Interpreter and Run-time ("Ren-C" branch)} 
-                Homepage https://github.com/metaeducation/ren-c/^/
+                Homepage https://github.com/metaeducation/ren-c/
             ]
 
 			remove-each [key value] fields: copy meta [key = 'notes]
