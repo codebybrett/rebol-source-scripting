@@ -19,6 +19,7 @@ script-needs [
 
 apropos conversion [
 
+    write join target.folder %source-tool.readme.txt {See https://github.com/codebybrett/rebol-source-scripting/tree/master/201512-file-headers}
 
 	if %temporary.201512-file-headers/ = second split-path conversion/target.folder [
 		path: join conversion/target.folder %src/
