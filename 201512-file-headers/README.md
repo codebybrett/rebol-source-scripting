@@ -4,9 +4,6 @@ file headers change
 A one-off format conversion project to modify the file heading comments
 in Rebol C source files. 
 
-Currently a work in progress.
-
-
 Approach
 --------
 
@@ -35,7 +32,7 @@ and commit.
 Conversion Notes
 ----------------
 
-[See the work in progress versions of the header conversion.](https://github.com/codebybrett/temporary.201512-file-headers)
+Work in progress versions of the header conversion are held in a [temporary repo](https://github.com/codebybrett/temporary.201512-file-headers).
 
 ### Copyright statement modifications proposals - needing confirmation ###
 
@@ -90,6 +87,23 @@ The following changes are made by the conversion to metadata, note that move-key
 
 * A licence condition of the Jpeg library source is that the Readme file be distributed. I do not know what version of Jpeg source Rebol uses so I don't know what readme to use.
 
+### Conversion done 20-Mar-2016 ###
+
+Conversion [Pull Request](https://github.com/metaeducation/ren-c/pull/248):
+
+The script logs (source-tool.*.*) were written to Ren-C then subsequently deleted. Browse them [here](https://github.com/metaeducation/ren-c/tree/91f0cff531d3bc6b664d83cd5b812d72c0812e92):
+
+* source-tool.analysis.r - Summary analysis of meta information used during development.
+* source-tool.authors.r - Author information extracted from files during conversion.
+* source-tool.headers.r - Results of file header parsing.
+* source-tool.issues.txt - Conversion actions that required discussion.
+* source-tool.log.txt - Conversion script log.
+* source-tool.newmeta.txt - Meta information after key modifications.
+
+Further discussion on this conversion is [here](https://github.com/codebybrett/rebol-source-scripting/issues/1).
+
+Authorship information was removed and placed in Credits.md wiki on the temporary repo mentioned above for discussion with contributors. @hostilefork
+will be moving that to Ren-C separately.
 
 Acknowledgement
 ---------------
