@@ -12,7 +12,7 @@ REBOL [
 ]
 
 
-do %../test/setup.reb
+do %test/setup.reb
 
 rebol-c-source/scan
 

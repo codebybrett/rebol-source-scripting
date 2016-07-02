@@ -20,6 +20,6 @@ do %../config.reb
 
 view-c: function [text][
 
-	visualise-parse text conversion/source-text/grammar conversion/source-text/valid? text]
+	visualise-parse text conversion/source-text/grammar conversion/source-text/valid? text
 ]
 

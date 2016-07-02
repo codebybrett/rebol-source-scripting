@@ -10,7 +10,7 @@ REBOL [
 	Author: "Brett Handley"
 ]
 
-do %../lib/env.reb
+do %lib/env.reb
 
 script-needs [
 	%requirements.reb
