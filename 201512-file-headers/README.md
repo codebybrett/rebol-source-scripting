@@ -89,6 +89,8 @@ The following changes are made by the conversion to metadata, note that move-key
 
 ### Conversion done 20-Mar-2016 ###
 
+Conversion was done using the Rebolsource version of R3 Alpha.
+
 Conversion [Pull Request](https://github.com/metaeducation/ren-c/pull/248):
 
 The script logs (source-tool.*.*) were written to Ren-C then subsequently deleted. Browse them [here](https://github.com/metaeducation/ren-c/tree/91f0cff531d3bc6b664d83cd5b812d72c0812e92):
