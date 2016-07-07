@@ -8,8 +8,9 @@ script-needs [
 test-editor: context [
 
     source-file: %../../ren-c/tests/core-tests.r
+    natives-file: %../../ren-c/src/boot/tmp-natives.r
 
-    tests-folder: %../../ren-c.scratchpad/tests/
+    tests-folder: %../../ren-c.scratchpad/201607-tests/
     output-file: join tests-folder %core-tests.r
 
     filepath: none
@@ -17,6 +18,8 @@ test-editor: context [
 
     content: none
     new-core: none
+
+    natives: none
 
     parse-tests: func [][
 
@@ -35,30 +38,69 @@ test-editor: context [
         parse/all content core-test.parser/grammar/start
     ]
 
-    write-tests: func [/local file-content][
+    write-tests: func [/local file-content outpath name file new-filepath][
 
         print "writing..."
 
         apropos core-test.parser [
 
-            emit-file: func [/local outpath][
-
-                filepath: to file! replace/all copy file-title {/} {.}
-                outpath: join tests-folder filepath
-                ?? outpath
-
-                folder: first split-path outpath
-                if not equal? %./ folder [make-dir/deep folder]
-
+            edit: func [][
+                attempt [make-dir/deep join tests-folder folder]
+                outpath: join folder file
                 file-content: copy/part file-start file-end
-                
-                write outpath file-content
-                file-end: change/part file-start join mold filepath newline file-end
+                write join tests-folder ?? outpath file-content
+                file-end: change/part file-start join mold outpath newline file-end
+            ]
+
+            emit-file: func [][
+
+                filepath: load copy file-title
+                assert [path? filepath]
+
+                file: last filepath
+
+                name: form file
+                clear find/last name ".r"
+
+                unset 'folder
+
+                case [
+
+                    find natives name [
+                        file: join to file! name %.test
+                        folder: %natives/
+                        edit
+                    ]
+
+                    find [datatypes system source] first filepath [
+                        file: join to file! name %.test
+                        folder: dirize to file! first filepath
+                        edit
+                    ]
+
+                    'functions = first filepath [
+                        filepath: copy next filepath
+                        file: join to file! mold next filepath %.test
+                        clear find/last file {.r}
+                        replace/all file {/} {.}
+                        folder: dirize to file! first filepath
+                        edit
+                    ]
+                ]
+
             ]
         ]
 
+        get-natives
         parse-tests
+      
 
         write output-file content
+    ]
+
+    get-natives: func [/local word][
+        natives: collect [
+            parse load natives-file [any [set word set-word! (keep form word) | skip]]
+        ]
     ]
 ]
