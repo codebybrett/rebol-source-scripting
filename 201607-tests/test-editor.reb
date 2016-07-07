@@ -68,13 +68,13 @@ test-editor: context [
                 case [
 
                     find natives name [
-                        file: join to file! name %.test
+                        file: join to file! name %.test.reb
                         folder: %natives/
                         edit
                     ]
 
                     find [datatypes system source] first filepath [
-                        file: join to file! name %.test
+                        file: join to file! name %.test.reb
                         folder: dirize to file! first filepath
                         edit
                     ]
@@ -82,7 +82,7 @@ test-editor: context [
                     'functions = first filepath [
                         filepath: copy next filepath
                         file: to file! mold next filepath
-                        append clear find/last file {.r} %.test
+                        append clear find/last file {.r} %.test.reb
                         replace/all file {/} {.}
                         folder: dirize to file! first filepath
                         edit
