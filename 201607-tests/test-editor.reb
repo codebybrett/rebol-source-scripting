@@ -48,7 +48,7 @@ test-editor: context [
                 attempt [make-dir/deep join tests-folder folder]
                 outpath: join folder file
                 file-content: copy/part file-start file-end
-                print [mold outpath]
+                print [{Output: } mold outpath]
                 write join tests-folder outpath file-content
                 file-end: change/part file-start join mold outpath newline file-end
             ]
@@ -81,8 +81,8 @@ test-editor: context [
 
                     'functions = first filepath [
                         filepath: copy next filepath
-                        file: join to file! mold next filepath %.test
-                        clear find/last file {.r}
+                        file: to file! mold next filepath
+                        append clear find/last file {.r} %.test
                         replace/all file {/} {.}
                         folder: dirize to file! first filepath
                         edit
