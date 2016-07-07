@@ -43,7 +43,7 @@ core-test.parser: context [
         other-section: [section]
 
         start: [
-            position: copy hdr file-header
+            position: copy header file-header
             position: opt other-section
             some [
                 position:
