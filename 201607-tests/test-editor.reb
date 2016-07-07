@@ -22,11 +22,15 @@ test-editor: context [
 
         content: read source-file
 
+        ; Fix misplaced call to parse-tests.r
         replace content {; datatypes/action.r
 
 %parse-tests.r} {%parse-tests.r
 
 ; datatypes/action.r}
+
+        ; Insert a file title for source analysis tests.
+        insert find content ";;^/;; Source analysis tests." {; source/analysis.r^/^/}
 
         parse/all content core-test.parser/grammar/start
     ]
@@ -38,10 +42,13 @@ test-editor: context [
         apropos core-test.parser [
 
             emit-file: func [/local outpath][
+
                 filepath: to file! replace/all copy file-title {/} {.}
                 outpath: join tests-folder filepath
                 ?? outpath
-                make-dir/deep first split-path outpath
+
+                folder: first split-path outpath
+                if not equal? %./ folder [make-dir/deep folder]
 
                 file-content: copy/part file-start file-end
                 
