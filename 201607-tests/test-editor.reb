@@ -48,6 +48,12 @@ test-editor: context [
                 attempt [make-dir/deep join tests-folder folder]
                 outpath: join folder file
                 file-content: copy/part file-start file-end
+
+                ; Fix path references.
+                replace/all file-content {%fixtures/} {%../../fixtures/}
+                replace file-content {save %source-analysis.log} {save %../../source-analysis.log}
+                replace file-content {script: %tmp-inner.reb} {script: %../../tmp-inner.reb}
+                
                 print [{Output: } mold outpath]
                 write join tests-folder outpath file-content
                 file-end: change/part file-start join mold outpath newline file-end
