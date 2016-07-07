@@ -6,14 +6,14 @@ script-needs [
 
 core-test.parser: context [
 
-    position: none
-    header: none
-    file-title: none
-    file-start: none
-    file-end: none
-    text: none
+    position: _
+    header: _
+    file-title: _
+    file-start: _
+    file-end: _
+    text: _
 
-    emit-file: none
+    emit-file: _
 
     charsets: context [
 
@@ -49,7 +49,7 @@ core-test.parser: context [
             position: copy header file-header
             position: opt other-section
             some [
-                (file-title: file-start: file-end: none)
+                (file-title: file-start: file-end: _)
                 position:
                 file-start: file-section file-end: (emit-file) :file-end
                 | other-section

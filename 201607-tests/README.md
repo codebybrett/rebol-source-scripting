@@ -3,4 +3,4 @@ Ren-C Test reorganisation
 
 A one-off split up of tests.
 
-Using R2 as an interpreter.
+Compatability: Ren-C a8f97ee

@@ -13,17 +13,17 @@ test-editor: context [
     tests-folder: %../../ren-c.scratchpad/201607-tests/
     output-file: join tests-folder %core-tests.r
 
-    filepath: none
-    outpath: none
+    filepath: _
+    outpath: _
 
-    content: none
-    new-core: none
+    content: _
+    new-core: _
 
-    natives: none
+    natives: _
 
     parse-tests: func [][
 
-        content: read source-file
+        content: to-string read source-file
 
         ; Fix misplaced call to parse-tests.r
         replace content {; datatypes/action.r
@@ -35,7 +35,7 @@ test-editor: context [
         ; Insert a file title for source analysis tests.
         insert find content ";;^/;; Source analysis tests." {; source/analysis.r^/^/}
 
-        parse/all content core-test.parser/grammar/start
+        parse content core-test.parser/grammar/start
     ]
 
     write-tests: func [/local file-content outpath name file new-filepath][
@@ -48,7 +48,8 @@ test-editor: context [
                 attempt [make-dir/deep join tests-folder folder]
                 outpath: join folder file
                 file-content: copy/part file-start file-end
-                write join tests-folder ?? outpath file-content
+                print [mold outpath]
+                write join tests-folder outpath file-content
                 file-end: change/part file-start join mold outpath newline file-end
             ]
 
@@ -100,7 +101,7 @@ test-editor: context [
 
     get-natives: func [/local word][
         natives: collect [
-            parse load natives-file [any [set word set-word! (keep form word) | skip]]
+            parse load natives-file [any [set word set-word! (keep form to word! word) | skip]]
         ]
     ]
 ]
