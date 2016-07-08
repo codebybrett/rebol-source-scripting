@@ -21,6 +21,8 @@ test-editor: context [
 
     natives: _
 
+    mapping: _
+
     parse-tests: func [][
 
         content: to-string read source-file
@@ -32,13 +34,19 @@ test-editor: context [
 
 ; datatypes/action.r}
 
+        ; Fix typo.
+        replace content {; functions/onvert/to-hex.r} {; functions/convert/to-hex.r}
+
         ; Insert a file title for source analysis tests.
         insert find content ";;^/;; Source analysis tests." {; source/analysis.r^/^/}
 
         parse content core-test.parser/grammar/start
     ]
 
-    write-tests: func [/local file-content outpath name file new-filepath][
+    write-tests: func [
+        /local file-content outpath name file new-filepath pos
+        edit use-category use-subcategory edit-file
+    ][
 
         print "writing..."
 
@@ -49,14 +57,33 @@ test-editor: context [
                 outpath: join folder file
                 file-content: copy/part file-start file-end
 
-                ; Fix path references.
-                replace/all file-content {%fixtures/} {%../../fixtures/}
-                replace file-content {save %source-analysis.log} {save %../../source-analysis.log}
-                replace file-content {script: %tmp-inner.reb} {script: %../../tmp-inner.reb}
-                
                 print [{Output: } mold outpath]
                 write join tests-folder outpath file-content
-                file-end: change/part file-start join mold outpath newline file-end
+                
+                file-ref: join %core/ outpath
+                file-end: change/part file-start join mold file-ref newline file-end
+
+                either pos: find/only mapping file-ref [
+                    if not block? pos/2 [
+                        change/only next pos reduce [pos/2] 
+                    ]
+                    append/only pos/2 filepath
+                ][
+                    append mapping reduce [file-ref filepath]
+                ]
+            ]
+
+            use-category: func [][
+                file: join to file! name %.test.reb
+                folder: dirize to file! first filepath
+            ]
+
+            use-subcategory: func [][
+                new-filepath: copy next filepath
+                file: to file! mold next new-filepath
+                append clear find/last file {.r} %.test.reb
+                replace/all file {/} {.}
+                folder: dirize to file! first new-filepath
             ]
 
             emit-file: func [][
@@ -73,24 +100,21 @@ test-editor: context [
 
                 case [
 
-                    find natives name [
-                        file: join to file! name %.test.reb
-                        folder: %natives/
+                    find [datatypes system source] first filepath [
+                        use-category
                         edit
                     ]
 
-                    find [datatypes system source] first filepath [
-                        file: join to file! name %.test.reb
-                        folder: dirize to file! first filepath
+                    all [
+                        find natives name
+                        not equal? 'datatypes first filepath
+                    ] [
+                        use-subcategory
                         edit
                     ]
 
                     'functions = first filepath [
-                        filepath: copy next filepath
-                        file: to file! mold next filepath
-                        append clear find/last file {.r} %.test.reb
-                        replace/all file {/} {.}
-                        folder: dirize to file! first filepath
+                        use-subcategory
                         edit
                     ]
                 ]
@@ -98,9 +122,15 @@ test-editor: context [
             ]
         ]
 
+        mapping: copy []
         get-natives
         parse-tests
-      
+
+        remove-each [file path] file-clash: copy mapping [not block? path]
+        if not empty? file-clash [
+            print "File clashes:"
+            print mold new-line/all/skip file-clash true 2
+        ]
 
         write output-file content
     ]
