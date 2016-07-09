@@ -10,8 +10,16 @@ test-editor: context [
     source-file: %../../ren-c/tests/core-tests.r
     natives-file: %../../ren-c/src/boot/tmp-natives.r
 
-    tests-folder: %../../ren-c.scratchpad/201607-tests/
+;    tests-folder: %../../ren-c.scratchpad/201607-tests/
+;    output-file: join tests-folder %core-tests.r
+
+    tests-folder: %../../ren-c/tests/
+
     output-file: join tests-folder %core-tests.r
+
+    logfile: clean-path join tests-folder %core-tests.SPLIT.LOG
+    log: function [message] [write/append logfile join newline mold new-line/all compose/only message false]
+
 
     filepath: _
     outpath: _
@@ -22,6 +30,7 @@ test-editor: context [
     natives: _
 
     mapping: _
+    filepath-list: _
 
     parse-tests: func [][
 
@@ -45,22 +54,36 @@ test-editor: context [
 
     write-tests: func [
         /local file-content outpath name file new-filepath pos
-        edit use-category use-subcategory edit-file
+        edit use-category use-subcategory edit-file new-file write-folder
     ][
 
         print "writing..."
 
+        log [scripting-project https://github.com/codebybrett/rebol-source-scripting/tree/master/201607-tests]
+        log [date (now)]
+
         apropos core-test.parser [
 
             edit: func [][
-                attempt [make-dir/deep join tests-folder folder]
+                if not exists? write-folder: join tests-folder folder [
+                    make-dir/deep write-folder
+                    log [make-folder (folder)]
+                ]
                 outpath: join folder file
                 file-content: copy/part file-start file-end
 
-                print [{Output: } mold outpath]
-                write join tests-folder outpath file-content
+                new-file: join tests-folder outpath
+                print [{Output: } mold new-file]
+                if exists? new-file [
+                    log [file-exists (new-file)]
+;;                    fail {File already exists.}
+                ]
+                write new-file file-content
+                log [write-for (filepath) file (outpath)]
                 
-                file-ref: join %core/ outpath
+;;                file-ref: join %core/ outpath
+                file-ref: outpath
+
                 file-end: change/part file-start join mold file-ref newline file-end
 
                 either pos: find/only mapping file-ref [
@@ -90,6 +113,8 @@ test-editor: context [
 
                 filepath: load copy file-title
                 assert [path? filepath]
+
+                append/only filepath-list filepath
 
                 file: last filepath
 
@@ -123,6 +148,7 @@ test-editor: context [
         ]
 
         mapping: copy []
+        filepath-list: copy []
         get-natives
         parse-tests
 
@@ -133,6 +159,7 @@ test-editor: context [
         ]
 
         write output-file content
+        log [write-main-file]
     ]
 
     get-natives: func [/local word][
